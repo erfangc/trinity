@@ -1,6 +1,5 @@
 import {ImageBackground, StyleSheet, Text, TextInput, View} from 'react-native';
 import CtaButton from "@/components/ui/CtaButton";
-import {GoogleSignUpButton} from "@/components/ui/GoogleSignUpButton";
 import {AppleSignUpButton} from "@/components/ui/AppleSignUpButton";
 import {useState} from "react";
 import {useRouter} from "expo-router";
@@ -21,7 +20,6 @@ export default function HomeScreen() {
                 <Text style={styles.title}>Login Page</Text>
 
                 <AppleSignUpButton/>
-                <GoogleSignUpButton/>
 
                 {/* Separator */}
                 <View style={styles.separator}>

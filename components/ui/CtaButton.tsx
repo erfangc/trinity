@@ -24,7 +24,7 @@ const CtaButton: React.FC<GradientButtonProps> = ({ title, onPress }) => {
 
 const styles = StyleSheet.create({
     buttonContainer: {
-        width: 235,
+        width: '100%',
         height: 62,
         borderRadius: 8,
         overflow: 'hidden',

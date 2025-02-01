@@ -1,7 +1,9 @@
 import {ImageBackground, StyleSheet, Text, View} from "react-native";
 import CtaButton from "@/components/ui/CtaButton";
+import {useRouter} from "expo-router";
 
 export default function LandingScreen() {
+    const router = useRouter()
     return (
         <ImageBackground
             source={require('../assets/images/background.png')}
@@ -9,7 +11,7 @@ export default function LandingScreen() {
             resizeMode="cover"
         >
             <View style={{marginBottom: 24}}>
-                <CtaButton title={"REQUEST A PRAYER"} onPress={() => null}/>
+                <CtaButton title={"REQUEST A PRAYER"} onPress={() => router.push('/create-prayer-intention')}/>
             </View>
         </ImageBackground>
     )
