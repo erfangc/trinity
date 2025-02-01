@@ -7,12 +7,12 @@ interface GradientButtonProps {
     onPress: () => void;
 }
 
-const GradientButton: React.FC<GradientButtonProps> = ({ title, onPress }) => {
+const CtaButton: React.FC<GradientButtonProps> = ({ title, onPress }) => {
     return (
         <TouchableOpacity onPress={onPress} style={styles.buttonContainer} activeOpacity={0.8}>
             <LinearGradient
-                colors={['#45281E', '#7E4D26']} // Figma gradient colors
-                start={{ x: 0.49, y: 0 }} // Matching Figma's gradient
+                colors={['#45281E', '#7E4D26']}
+                start={{ x: 0.49, y: 0 }}
                 end={{ x: 1, y: 0 }}
                 style={styles.gradient}
             >
@@ -24,20 +24,22 @@ const GradientButton: React.FC<GradientButtonProps> = ({ title, onPress }) => {
 
 const styles = StyleSheet.create({
     buttonContainer: {
-        borderRadius: 25, // Ensures rounded corners
-        overflow: 'hidden', // Prevents gradient overflow
+        width: 235,
+        height: 62,
+        borderRadius: 8,
+        overflow: 'hidden',
     },
     gradient: {
         paddingVertical: 12,
         paddingHorizontal: 20,
-        borderRadius: 25, // Same as buttonContainer
+        borderRadius: 8,
         alignItems: 'center',
     },
     text: {
-        color: '#FFF',
+        color: '#B1AA91',
         fontSize: 16,
         fontWeight: 'bold',
     },
 });
 
-export default GradientButton;
+export default CtaButton;
