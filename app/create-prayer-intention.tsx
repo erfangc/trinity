@@ -1,16 +1,41 @@
-import React, {useState} from "react";
-import {View, Text, TextInput, StyleSheet, TouchableOpacity, Alert} from "react-native";
+import React, {useEffect, useState} from "react";
+import {
+    View,
+    Text,
+    TextInput,
+    StyleSheet,
+    TouchableOpacity,
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView
+} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/ui/CtaButton";
 import {useRouter} from "expo-router";
 import {addDoc, collection} from "@firebase/firestore";
 import {db} from "@/firebaseConfig";
-import {serverTimestamp} from "@firebase/database"; // For the back arrow icon
+import {serverTimestamp} from "@firebase/database";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // For the back arrow icon
 
 export function CreatePrayerIntentionScreen() {
 
     const router = useRouter();
     const [prayIntentionMessage, setPrayIntentionMessage] = useState('');
+    const [name, setName] = useState<string>();
+
+    useEffect(() => {
+        AsyncStorage
+            .getItem('name')
+            .then(value => {
+                if (value) {
+                    setName(value);
+                } else {
+                    router.navigate('/');
+                }
+            })
+            .catch(err => console.log(err));
+    }, []);
 
     const handleSubmit = async () => {
         if (!prayIntentionMessage.trim()) {
@@ -20,6 +45,7 @@ export function CreatePrayerIntentionScreen() {
 
         try {
             await addDoc(collection(db, "prayerIntentions"), {
+                from: name ?? "Anonymous",
                 message: prayIntentionMessage,
                 createdAt: serverTimestamp()
             });
@@ -31,6 +57,7 @@ export function CreatePrayerIntentionScreen() {
 
             // Clear the input field after submission
             setPrayIntentionMessage('');
+            router.back();
         } catch (error) {
             Alert.alert("Error", "Failed to submit prayer intention.");
             console.error("Error adding document: ", error);
@@ -44,23 +71,31 @@ export function CreatePrayerIntentionScreen() {
                 <Ionicons name="arrow-back" size={24} color="white"/>
             </TouchableOpacity>
 
-            {/* Prayer Intention Input */}
-            <View style={styles.inputContainer}>
-                <Text style={styles.label}>PRAYER INTENTION</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your pray intention here. This can be anything you wish to share about your current situation in life"
-                    placeholderTextColor="#B0B0B0"
-                    value={prayIntentionMessage}
-                    onChangeText={setPrayIntentionMessage}
-                    multiline
-                />
-            </View>
+            {/* Make the screen scrollable and adjust with keyboard */}
+            <KeyboardAvoidingView
+                style={styles.keyboardAvoidingContainer}
+                behavior={Platform.OS === "ios" ? "padding" : undefined} // Use 'padding' for iOS, 'height' (default) for Android
+            >
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    {/* Prayer Intention Input */}
+                    <View style={styles.inputContainer}>
+                        <Text style={styles.label}>PRAYER INTENTION</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your pray intention here. This can be anything you wish to share about your current situation in life"
+                            placeholderTextColor="#B0B0B0"
+                            value={prayIntentionMessage}
+                            onChangeText={setPrayIntentionMessage}
+                            multiline
+                        />
+                    </View>
 
-            {/* Submit Button */}
-            <View style={styles.ctaButtonContainer}>
-                <CtaButton title="Submit Request" onPress={handleSubmit}/>
-            </View>
+                    {/* Submit Button */}
+                    <View style={styles.ctaButtonContainer}>
+                        <CtaButton title="Submit Request" onPress={handleSubmit} />
+                    </View>
+                </ScrollView>
+            </KeyboardAvoidingView>
         </View>
     );
 };
@@ -72,6 +107,13 @@ const styles = StyleSheet.create({
         backgroundColor: "#181818",
         justifyContent: 'flex-end',
         padding: 20,
+    },
+    keyboardAvoidingContainer: {
+        flex: 1,
+    },
+    scrollContainer: {
+        flexGrow: 1,
+        justifyContent: "flex-end", // Ensures UI component alignment
     },
     backButton: {
         position: "absolute",

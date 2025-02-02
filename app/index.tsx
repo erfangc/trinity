@@ -1,13 +1,29 @@
 import {ImageBackground, StyleSheet, Text, TextInput, View} from 'react-native';
 import CtaButton from "@/components/ui/CtaButton";
 import {AppleSignUpButton} from "@/components/ui/AppleSignUpButton";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {SignUpButton} from "@/components/ui/SignUpButton";
+import {OrSeparator} from "@/components/ui/OrSeparator";
 
 export default function HomeScreen() {
 
     const [name, setName] = useState<string>('');
     const router = useRouter(); // Access the router instance
+
+    useEffect(() => {
+        AsyncStorage
+            .getItem('name')
+            .then(value => setName(value || ''))
+            .catch(err => console.log(err));
+    }, []);
+
+    useEffect(() => {
+        if (name !== undefined && name !== null) {
+            AsyncStorage.setItem('name', name);
+        }
+    }, [name]);
 
     return (
         <ImageBackground
@@ -18,15 +34,9 @@ export default function HomeScreen() {
             <View style={styles.overlay}>
 
                 <Text style={styles.title}>Login Page</Text>
-
                 <AppleSignUpButton/>
-
-                {/* Separator */}
-                <View style={styles.separator}>
-                    <View style={styles.line} />
-                    <Text style={styles.orText}>OR</Text>
-                    <View style={styles.line} />
-                </View>
+                <SignUpButton/>
+                <OrSeparator/>
 
                 {/* Input Field */}
                 <Text style={styles.label}>Your Name</Text>
@@ -34,6 +44,7 @@ export default function HomeScreen() {
                     style={styles.input}
                     placeholder="Enter your name"
                     placeholderTextColor="#D9D9D9"
+                    value={name}
                     onChangeText={(text) => setName(text)}
                 />
 
@@ -64,21 +75,6 @@ const styles = StyleSheet.create({
         color: "#D9D9D9",
         fontSize: 16,
         marginBottom: 20,
-    },
-    separator: {
-        flexDirection: "row",
-        alignItems: "center",
-        marginVertical: 15,
-        width: "100%",
-    },
-    line: {
-        flex: 1,
-        height: 1,
-        backgroundColor: "#D9D9D9",
-    },
-    orText: {
-        color: "#D9D9D9",
-        marginHorizontal: 10,
     },
     label: {
         color: "#D9D9D9",
