@@ -1,11 +1,12 @@
 import {ImageBackground, StyleSheet, Text, TextInput, View} from 'react-native';
 import CtaButton from "@/components/ui/CtaButton";
-import {AppleSignUpButton} from "@/components/ui/AppleSignUpButton";
+import {SignInButton} from "@/components/ui/SignInButton";
 import {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SignUpButton} from "@/components/ui/SignUpButton";
 import {OrSeparator} from "@/components/ui/OrSeparator";
+import {getCredentials} from "@/credentialStorage";
 
 export default function HomeScreen() {
 
@@ -25,6 +26,15 @@ export default function HomeScreen() {
         }
     }, [name]);
 
+    useEffect(() => {
+        getCredentials('credentials')
+            .then(resp => {
+                if (resp) {
+                    router.navigate('/sign-in');
+                }
+            });
+    }, []);
+
     return (
         <ImageBackground
             source={require('../assets/images/background.png')}
@@ -34,7 +44,7 @@ export default function HomeScreen() {
             <View style={styles.overlay}>
 
                 <Text style={styles.title}>Login Page</Text>
-                <AppleSignUpButton/>
+                <SignInButton/>
                 <SignUpButton/>
                 <OrSeparator/>
 
