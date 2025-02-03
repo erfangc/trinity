@@ -1,23 +1,25 @@
-import {StyleSheet, Text, TextInput, View} from "react-native";
-import React from "react";
+import React, { forwardRef } from "react";
+import { StyleSheet, Text, TextInput, View, TextInputProps } from "react-native";
 
-export const TextInputField: React.FC<
-    { label: string, value: string, onChangeText: (_: string) => void, placeholder?: string }> = (
-    {onChangeText, value, label, placeholder}
-) => {
-    return (
-        <View>
-            <Text style={styles.label}>{label}</Text>
-            <TextInput
-                style={styles.textInput}
-                value={value}
-                onChangeText={onChangeText}
-                placeholder={placeholder}
-                placeholderTextColor="#B0B0B0"
-            />
-        </View>
-    );
-}
+type TextInputFieldProps = {
+    label: string;
+} & TextInputProps;
+
+export const TextInputField = forwardRef<TextInput, TextInputFieldProps>(
+    ({ label, style, ...props }, ref) => {
+        return (
+            <View>
+                <Text style={styles.label}>{label}</Text>
+                <TextInput
+                    ref={ref}
+                    placeholderTextColor={'#B0B0B0'}
+                    style={[styles.textInput, style]}
+                    {...props}
+                />
+            </View>
+        );
+    }
+);
 
 const styles = StyleSheet.create({
     textInput: {
@@ -25,10 +27,11 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         marginVertical: 10,
         paddingVertical: 10,
+        color: "#fff",
         borderRadius: 4,
-        textAlignVertical: "top", // Ensures text aligns properly in multiline mode
+        textAlignVertical: "top",
     },
     label: {
-        color: '#fff'
+        color: "#fff",
     },
 });
