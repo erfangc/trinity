@@ -30,12 +30,13 @@ export default function RootLayout() {
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <StatusBar barStyle="light-content"/>
-            <Stack>
+            <Stack screenOptions={{ headerShown: false }}>
                 <Stack.Screen name="index" options={{headerShown: false}}/>
                 <Stack.Screen name="landing" options={{headerShown: false}}/>
                 <Stack.Screen name="sign-up" options={{headerShown: false}}/>
                 <Stack.Screen name="sign-in" options={{headerShown: false}}/>
                 <Stack.Screen name="create-prayer-intention" options={{headerShown: false}}/>
+                <Stack.Screen name="prayer-intentions/:id" options={{headerShown: false}}/>
                 <Stack.Screen name="+not-found"/>
             </Stack>
         </ThemeProvider>

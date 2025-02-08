@@ -13,10 +13,8 @@ import {
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/ui/CtaButton";
 import {useRouter} from "expo-router";
-import {addDoc, collection} from "@firebase/firestore";
-import {db} from "@/firebaseConfig";
-import {serverTimestamp} from "@firebase/database";
-import AsyncStorage from "@react-native-async-storage/async-storage"; // For the back arrow icon
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {addPrayIntention} from "@/addPrayerIntention"; // For the back arrow icon
 
 export function CreatePrayerIntentionScreen() {
 
@@ -44,12 +42,7 @@ export function CreatePrayerIntentionScreen() {
         }
 
         try {
-            await addDoc(collection(db, "prayerIntentions"), {
-                from: name ?? "Anonymous",
-                message: prayIntentionMessage,
-                createdAt: serverTimestamp()
-            });
-
+            await addPrayIntention({from: name!!, description: prayIntentionMessage});
             Alert.alert(
                 "Submitted",
                 "Your prayer intention has been submitted. We will notify you when a fellow member prays for you."
