@@ -4,26 +4,17 @@ import {useRouter} from "expo-router";
 import {signOut} from "firebase/auth";
 import React, {useEffect, useState} from "react";
 import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
-import {MaterialIcons} from "@expo/vector-icons";
-import {auth} from "@/firebaseConfig";  // Expo supports this out of the box
-
-const PrayerRequestCard: React.FC<{ name: string, onPress: () => void }> = ({name = "John", onPress}) => {
-    return (
-        <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.7}>
-            <View
-                style={styles.background1}
-            >
-                <View style={styles.overlay}/>
-                <Text style={styles.text}>{name} requested A Prayer</Text>
-                <MaterialIcons name="chevron-right" size={24} color="#FFD700" style={styles.icon}/>
-            </View>
-        </TouchableOpacity>
-    );
-};
+import {auth} from "@/firebaseConfig";
+import {PrayerRequestCard} from "@/components/PrayerRequestCard"; // Expo supports this out of the box
 
 export default function LandingScreen() {
 
     const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
+    const router = useRouter();
+
+    useEffect(() => {
+        return fetchPrayIntentions(10, prayerIntentions => setPrayerIntentions(prayerIntentions));
+    }, []);
 
     const handleSignOut = () => {
         signOut(auth)
@@ -31,11 +22,9 @@ export default function LandingScreen() {
             .catch(err => console.log(err));
     };
 
-    useEffect(() => {
-        return fetchPrayIntentions(10, prayerIntentions => setPrayerIntentions(prayerIntentions));
-    }, []);
-
-    const router = useRouter()
+    const navigateToPrayerIntention = (prayerIntention: PrayerIntention) => {
+        router.push(`/prayer-intentions/${prayerIntention.id}`);
+    };
 
     return (
         <ImageBackground
@@ -48,19 +37,18 @@ export default function LandingScreen() {
                     <PrayerRequestCard
                         key={prayerIntention.id}
                         name={prayerIntention.from}
-                        onPress={() =>
-                            router.push(`/prayer-intentions/${prayerIntention.id}`)
-                        }
+                        onPress={() => navigateToPrayerIntention(prayerIntention)}
                     />
                 ))}
                 {
-                    prayerIntentions.length === 0 ?
+                    prayerIntentions.length === 0
+                        ?
                         <View style={{opacity: 0.9, backgroundColor: '#7E4D26', padding: 24, borderRadius: 8}}>
-                            <Text style={{color:'#fff'}}>
+                            <Text style={{color: '#fff'}}>
                                 There are currently no prayer intentions available. Please check back later!
                             </Text>
                         </View>
-                         : null
+                        : null
                 }
             </SafeAreaView>
             <View style={{marginBottom: 24}}>
@@ -83,36 +71,6 @@ const styles = StyleSheet.create({
     },
     signOutText: {
         color: "#fff",
-    },
-    card: {
-        width: 330,
-        height: 40,
-        borderRadius: 10,
-        overflow: "hidden",
-    },
-    background1: {
-        width: "100%",
-        height: "100%",
-        flexDirection: "row",
-        alignItems: "center",
-        paddingHorizontal: 15,
-        position: "relative",
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        backgroundColor: "#7E4D26",
-        opacity: 0.9,
-        borderRadius: 10,
-    },
-    text: {
-        color: "#B1AA91",
-        fontSize: 14,
-        fontWeight: "500",
-        textTransform: "uppercase",
-        flex: 1,
-    },
-    icon: {
-        marginRight: 10,
     },
     background: {
         flex: 1,
