@@ -5,7 +5,8 @@ import {signOut} from "firebase/auth";
 import React, {useEffect, useState} from "react";
 import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
 import {auth} from "@/firebaseConfig";
-import {PrayerRequestCard} from "@/components/PrayerRequestCard"; // Expo supports this out of the box
+import {PrayerRequestCard} from "@/components/PrayerRequestCard";
+import {NotificationIcon} from "@/components/NotificationIcon"; // Expo supports this out of the box
 
 export default function LandingScreen() {
 
@@ -13,7 +14,7 @@ export default function LandingScreen() {
     const router = useRouter();
 
     useEffect(() => {
-        return fetchPrayIntentions(10, prayerIntentions => setPrayerIntentions(prayerIntentions));
+        return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
     }, []);
 
     const handleSignOut = () => {
@@ -32,7 +33,9 @@ export default function LandingScreen() {
             style={styles.background}
             resizeMode="cover"
         >
-            <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', gap: 16}}>
+            <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', gap: 16, width: '100%'}}>
+                <NotificationIcon />
+
                 {prayerIntentions.map(prayerIntention => (
                     <PrayerRequestCard
                         key={prayerIntention.id}
@@ -43,7 +46,7 @@ export default function LandingScreen() {
                 {
                     prayerIntentions.length === 0
                         ?
-                        <View style={{opacity: 0.9, backgroundColor: '#7E4D26', padding: 24, borderRadius: 8}}>
+                        <View style={{opacity: 0.9, backgroundColor: '#7E4D26', marginHorizontal: 12, padding: 24, borderRadius: 8}}>
                             <Text style={{color: '#fff'}}>
                                 There are currently no prayer intentions available. Please check back later!
                             </Text>

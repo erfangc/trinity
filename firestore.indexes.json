@@ -1,13 +1,21 @@
 {
-  "indexes": [
-  {
-    "collectionGroup": "prayerIntentions",
-    "queryScope": "COLLECTION",
-    "fields": [
-      { "fieldPath": "answered", "order": "ASCENDING" },
-      { "fieldPath": "creationDate", "order": "ASCENDING" }
-      ]
-  }
-  ],
-  "fieldOverrides": []
+    "indexes": [
+    {
+        "collectionGroup": "prayerIntentions",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "answered", "order": "ASCENDING" },
+            { "fieldPath": "creationDate", "order": "ASCENDING" }
+            ]
+    },
+    {
+        "collectionGroup": "prayerIntentions",
+        "queryScope": "COLLECTION",
+        "fields": [
+            { "fieldPath": "userId", "order": "ASCENDING" },
+            { "fieldPath": "creationDate", "order": "ASCENDING" }
+            ]
+    }
+    ],
+    "fieldOverrides": []
 }
