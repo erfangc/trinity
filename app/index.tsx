@@ -6,11 +6,14 @@ import {useRouter} from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SignUpButton} from "@/components/ui/SignUpButton";
 import {OrSeparator} from "@/components/ui/OrSeparator";
+import {signInAnonymously} from "@firebase/auth";
+import {auth, db} from "@/firebaseConfig";
+import {doc, setDoc} from "firebase/firestore";
 
 export default function HomeScreen() {
 
     const [name, setName] = useState<string>('');
-    const router = useRouter(); // Access the router instance
+    const router = useRouter();
 
     useEffect(() => {
         AsyncStorage
@@ -24,6 +27,20 @@ export default function HomeScreen() {
             AsyncStorage.setItem('name', name);
         }
     }, [name]);
+
+    const handleConfirm = async () => {
+
+        const {user} = await signInAnonymously(auth);
+        console.log(`Signed in anonymously as ${user?.uid}`);
+
+        // Write the name to Firestore keyed by user.uid
+        await setDoc(doc(db, "users", user.uid), {
+            name: name,
+        });
+
+        console.log(`Name "${name}" saved to Firestore for user ${user.uid}`);
+        router.push('/landing');
+    }
 
     return (
         <ImageBackground
@@ -50,7 +67,7 @@ export default function HomeScreen() {
 
                 {/* Confirm Button */}
                 <View style={styles.confirmButton}>
-                    <CtaButton title="CONFIRM" onPress={() => router.push('/landing')}/>
+                    <CtaButton title="CONFIRM" onPress={handleConfirm}/>
                 </View>
             </View>
         </ImageBackground>

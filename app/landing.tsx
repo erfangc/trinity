@@ -1,9 +1,11 @@
 import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import CtaButton from "@/components/ui/CtaButton";
 import {useRouter} from "expo-router";
+import {signOut} from "firebase/auth";
 import React, {useEffect, useState} from "react";
 import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
-import {MaterialIcons} from "@expo/vector-icons";  // Expo supports this out of the box
+import {MaterialIcons} from "@expo/vector-icons";
+import {auth} from "@/firebaseConfig";  // Expo supports this out of the box
 
 const PrayerRequestCard: React.FC<{ name: string, onPress: () => void }> = ({name = "John", onPress}) => {
     return (
@@ -21,10 +23,16 @@ const PrayerRequestCard: React.FC<{ name: string, onPress: () => void }> = ({nam
 
 export default function LandingScreen() {
 
-    const [prayerIntentions, setPrayerIntentions] = useState<PrayIntention[]>([]);
+    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
+
+    const handleSignOut = () => {
+        signOut(auth)
+            .then(() => router.push('/'))
+            .catch(err => console.log(err));
+    };
 
     useEffect(() => {
-        fetchPrayIntentions(10).then(resp => setPrayerIntentions(resp));
+        return fetchPrayIntentions(10, prayerIntentions => setPrayerIntentions(prayerIntentions));
     }, []);
 
     const router = useRouter()
@@ -37,24 +45,45 @@ export default function LandingScreen() {
         >
             <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', gap: 16}}>
                 {prayerIntentions.map(prayerIntention => (
-                    <>
-                        <PrayerRequestCard
-                            key={prayerIntention.id}
-                            name={prayerIntention.from}
-                            onPress={() =>
+                    <PrayerRequestCard
+                        key={prayerIntention.id}
+                        name={prayerIntention.from}
+                        onPress={() =>
                             router.push(`/prayer-intentions/${prayerIntention.id}`)
-                        }/>
-                    </>
+                        }
+                    />
                 ))}
+                {
+                    prayerIntentions.length === 0 ?
+                        <View style={{opacity: 0.9, backgroundColor: '#7E4D26', padding: 24, borderRadius: 8}}>
+                            <Text style={{color:'#fff'}}>
+                                There are currently no prayer intentions available. Please check back later!
+                            </Text>
+                        </View>
+                         : null
+                }
             </SafeAreaView>
             <View style={{marginBottom: 24}}>
                 <CtaButton title={"REQUEST A PRAYER"} onPress={() => router.push('/create-prayer-intention')}/>
+                <TouchableOpacity style={styles.signOutContainer}
+                                  onPress={() => router.push('/create-prayer-intention')}>
+                    <Text style={styles.signOutText} onPress={handleSignOut}>
+                        Sign Out
+                    </Text>
+                </TouchableOpacity>
             </View>
         </ImageBackground>
     )
 };
 
 const styles = StyleSheet.create({
+    signOutContainer: {
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    signOutText: {
+        color: "#fff",
+    },
     card: {
         width: 330,
         height: 40,
@@ -71,12 +100,12 @@ const styles = StyleSheet.create({
     },
     overlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: "#7E4D26", // Brown background
-        opacity: 0.9, // Matches 90% opacity in your design
+        backgroundColor: "#7E4D26",
+        opacity: 0.9,
         borderRadius: 10,
     },
     text: {
-        color: "#B1AA91", // Light grayish color in your UI
+        color: "#B1AA91",
         fontSize: 14,
         fontWeight: "500",
         textTransform: "uppercase",

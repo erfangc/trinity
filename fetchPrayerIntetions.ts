@@ -1,29 +1,42 @@
-import {collection, doc, getDoc, getDocs, limit, orderBy, query, updateDoc, where} from "firebase/firestore";
-import {db} from "./firebaseConfig"; // Your Firebase setup file
+import {
+    collection,
+    doc,
+    getDoc,
+    limit,
+    onSnapshot,
+    orderBy,
+    query,
+    Unsubscribe,
+    updateDoc,
+    where
+} from "firebase/firestore";
+import {db} from "./firebaseConfig";
 
-export const fetchPrayIntentions = async (N: number): Promise<PrayIntention[]> => {
-
-    try {
-        const q = query(
-            collection(db, "prayerIntentions"),
-            where("answered", "==", false),
-            orderBy("creationDate", "asc"),
-            limit(N)
-        );
-
-        const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            creationDate: doc.data().creationDate.toDate(),
-        } as PrayIntention));
-    } catch (error) {
-        console.error("Error fetching prayer intentions:", error);
-        return [];
-    }
+export const fetchPrayIntentions = (N: number, onData: (prayerIntentions: PrayerIntention[]) => void): Unsubscribe => {
+    const q = query(
+        collection(db, "prayerIntentions"),
+        where("answered", "==", false),
+        orderBy("creationDate", "asc"),
+        limit(N)
+    );
+    return onSnapshot(q, {
+        next: snapshot => {
+            const prayerIntentions = snapshot.docs.map(doc => {
+                return {
+                    id: doc.id,
+                    ...doc.data(),
+                    creationDate: doc.data().creationDate.toDate(),
+                } as PrayerIntention;
+            });
+            onData(prayerIntentions);
+        },
+        error: error => {
+            console.error("Error fetching prayer intentions:", error);
+        }
+    });
 };
 
-export const fetchPrayIntentionById = async (id: string): Promise<PrayIntention | null> => {
+export const fetchPrayIntentionById = async (id: string): Promise<PrayerIntention | null> => {
     try {
         const docRef = doc(db, "prayerIntentions", id); // Reference to the document by ID
         const docSnap = await getDoc(docRef);
@@ -33,7 +46,7 @@ export const fetchPrayIntentionById = async (id: string): Promise<PrayIntention 
                 id: docSnap.id,
                 ...docSnap.data(),
                 creationDate: docSnap.data().creationDate.toDate(), // Convert Firestore Timestamp to Date
-            } as PrayIntention;
+            } as PrayerIntention;
         } else {
             console.warn(`No prayer intention found for ID: ${id}`);
             return null;

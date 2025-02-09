@@ -10,7 +10,7 @@ const PrayerDetailScreen = () => {
 
     const router = useRouter();
     const {id} = useLocalSearchParams();
-    const [prayerIntention, setPrayerIntention] = useState<PrayIntention>();
+    const [prayerIntention, setPrayerIntention] = useState<PrayerIntention>();
     const currentUser = auth.currentUser;
 
     useEffect(() => {

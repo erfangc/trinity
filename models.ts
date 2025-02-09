@@ -3,7 +3,7 @@ interface Credentials {
     password: string;
 }
 
-interface PrayIntention {
+interface PrayerIntention {
     id: string;
     from: string;
     creationDate: Date;
