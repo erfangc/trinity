@@ -1,42 +1,17 @@
-import React, {useEffect, useState} from "react";
-import {
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-    Alert,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { TextInputField } from "@/components/ui/TextInputField";
+import React, {useState} from "react";
+import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
+import {Ionicons} from "@expo/vector-icons";
+import {TextInputField} from "@/components/ui/TextInputField";
 import CtaButton from "@/components/ui/CtaButton";
-import { signInWithEmailAndPassword } from "firebase/auth"; // Import Firebase sign-in function
-import { auth } from "@/firebaseConfig"; // Import Firebase auth instance
-import { useRouter } from "expo-router";
-import {getCredentials, saveCredentials} from "@/credentialStorage";
+import {signInWithEmailAndPassword} from "firebase/auth"; // Import Firebase sign-in function
+import {auth} from "@/firebaseConfig"; // Import Firebase auth instance
+import {useRouter} from "expo-router";
 
 export default function SignIn() {
 
     const [username, setUsername] = useState(""); // Email
     const [password, setPassword] = useState("");
     const router = useRouter();
-
-    useEffect(
-        () => {
-            getCredentials('credentials').then(creds => {
-                if (creds) {
-                    const credentials = JSON.parse(creds) as Credentials;
-                    if (credentials.username && credentials.password) {
-                        setUsername(credentials.username);
-                        setPassword(credentials.password);
-                        signIn(credentials.username, credentials.password);
-                    }
-                }
-            });
-        },
-        [],
-    );
 
     const signIn = async (username: string, password: string) => {
         if (!username || !password) {
@@ -48,7 +23,6 @@ export default function SignIn() {
             // Try to sign in the user with the provided credentials
             const userCredential = await signInWithEmailAndPassword(auth, username, password);
             const user = userCredential.user;
-            await saveCredentials('credentials', JSON.stringify({username, password}));
             router.push("/landing");
         } catch (error: any) {
             console.error("Error signing in: ", error.message);
@@ -63,14 +37,14 @@ export default function SignIn() {
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                <Ionicons name="arrow-back" size={24} color="white" />
+                <Ionicons name="arrow-back" size={24} color="white"/>
             </TouchableOpacity>
             <KeyboardAvoidingView
                 style={styles.keyboardAvoidingContainer}
                 behavior={Platform.OS === "ios" ? "padding" : undefined}
             >
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
-                    <View style={{ gap: 6, marginBottom: 24 }}>
+                    <View style={{gap: 6, marginBottom: 24}}>
                         <TextInputField
                             label="Username (Email)"
                             placeholder="ex: johndoe123@example.com"
@@ -95,7 +69,7 @@ export default function SignIn() {
 
                     {/* Submit Button */}
                     <View>
-                        <CtaButton title="Sign In" onPress={handleSignIn} />
+                        <CtaButton title="Sign In" onPress={handleSignIn}/>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

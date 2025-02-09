@@ -6,7 +6,6 @@ import {useRouter} from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SignUpButton} from "@/components/ui/SignUpButton";
 import {OrSeparator} from "@/components/ui/OrSeparator";
-import {getCredentials} from "@/credentialStorage";
 
 export default function HomeScreen() {
 
@@ -25,15 +24,6 @@ export default function HomeScreen() {
             AsyncStorage.setItem('name', name);
         }
     }, [name]);
-
-    useEffect(() => {
-        getCredentials('credentials')
-            .then(resp => {
-                if (resp) {
-                    router.navigate('/sign-in');
-                }
-            });
-    }, []);
 
     return (
         <ImageBackground

@@ -1,11 +1,23 @@
-import React, {useState} from "react";
-import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
-import {useRouter} from "expo-router";
-import {createUserWithEmailAndPassword} from "firebase/auth";
-import {doc, setDoc} from "firebase/firestore";
-import {auth, db} from "@/firebaseConfig";
-import {TextInputField} from "@/components/ui/TextInputField";
+import React, { useState } from "react";
+import {
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TouchableOpacity,
+    View,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import {
+    createUserWithEmailAndPassword,
+    linkWithCredential,
+    EmailAuthProvider,
+} from "firebase/auth";
+import {doc, getDoc, setDoc} from "firebase/firestore";
+import { auth, db } from "@/firebaseConfig";
+import { TextInputField } from "@/components/ui/TextInputField";
 import CtaButton from "@/components/ui/CtaButton";
 
 export default function SignUp() {
@@ -19,36 +31,52 @@ export default function SignUp() {
     const [parish, setParish] = useState("");
 
     const handleCreateAccount = async () => {
-        // Basic validation
         if (!username || !password || !firstName) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
         }
 
         try {
-            // Create Firebase user
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                username, // Treat username as an email
-                password
-            );
+            const currentUser = auth.currentUser;
 
-            const user = userCredential.user;
+            if (currentUser?.isAnonymous) {
+                const userDocRef = doc(db, "users", currentUser?.uid);
+                const userDoc = await getDoc(userDocRef);
+                const existingName = userDoc.exists() ? userDoc.data().name : "";
+                console.log("Anonymous user detected. Attempting to link account...");
 
-            // Save additional user information to Firestore
-            await setDoc(doc(db, "users", user.uid), {
-                firstName,
-                lastName,
-                parish,
-                username,
-                createdAt: new Date(),
-            });
+                const credential = EmailAuthProvider.credential(username, password);
+                const linkedUser = await linkWithCredential(currentUser, credential);
+                console.log("Anonymous account successfully linked:", linkedUser.user.uid);
 
-            Alert.alert("Success", "Account created successfully!");
-            router.push("/landing");
+                await setDoc(userDocRef, {
+                    firstName,
+                    lastName,
+                    parish,
+                    username,
+                    name: existingName, // Preserve name
+                    createdAt: new Date(),
+                });
+
+                Alert.alert("Success", "Account created successfully!");
+                router.push("/landing");
+            } else {
+                console.log("No anonymous user, creating a new account...");
+                const userCredential = await createUserWithEmailAndPassword(auth, username, password);
+                await setDoc(doc(db, "users", userCredential.user.uid), {
+                    firstName,
+                    lastName,
+                    parish,
+                    username,
+                    createdAt: new Date(),
+                });
+
+                Alert.alert("Success", "Account created successfully!");
+                router.push("/landing");
+            }
         } catch (error: any) {
             console.error("Error creating account: ", error);
-            Alert.alert("Error", error.message || "Failed to create account. Please try again.");
+            Alert.alert("Error", error.message || "Failed to create account.");
         }
     };
 
@@ -125,7 +153,7 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flexGrow: 1,
-        justifyContent: "flex-end", // Ensures UI component alignment
+        justifyContent: "flex-end",
     },
     backButton: {
         position: "absolute",
