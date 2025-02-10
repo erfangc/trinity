@@ -16,6 +16,7 @@ export const addPrayIntention = async (
             from: prayerIntention.from,
             userId: currentUser.uid,
             answered: false,
+            read: false,
             creationDate: Timestamp.now(),
         });
         console.log("Document successfully written!");

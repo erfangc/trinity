@@ -24,7 +24,7 @@ const PrayerDetailScreen = () => {
         }
     }, []);
 
-    const handlePray = async () => {
+    const handleAnswerPrayerIntention = async () => {
         if (id && typeof id === "string") {
             await markPrayerIntentionAsAnswered(id);
             fetchPrayIntentionById(id)
@@ -70,7 +70,7 @@ const PrayerDetailScreen = () => {
                         <View style={styles.buttonContainer}>
                             <CtaButton
                                 title={`Pray for ${prayerIntention?.from}`}
-                                onPress={handlePray}
+                                onPress={handleAnswerPrayerIntention}
                             />
                         </View>
                         : null

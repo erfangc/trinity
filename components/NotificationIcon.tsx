@@ -3,11 +3,13 @@ import {Ionicons} from "@expo/vector-icons";
 import React, {useEffect, useState} from "react";
 import {collection, getCountFromServer, query, where} from "firebase/firestore";
 import {auth, db} from "@/firebaseConfig";
+import {useRouter} from "expo-router";
 
 export const NotificationIcon = () => {
 
     const [count, setCount] = useState(0);
     const currentUser = auth.currentUser;
+    const router = useRouter();
 
     useEffect(() => {
         if (!currentUser) {
@@ -18,14 +20,13 @@ export const NotificationIcon = () => {
     }, [currentUser]);
 
     return (
-        <View style={{flexDirection: "row", justifyContent: "flex-end", margin: 16}}>
-            {/* Notification Icon */}
-            <TouchableOpacity onPress={() => null}>
+        <View style={styles.container}>
+            <TouchableOpacity onPress={() => router.push('/inbox')}>
                 <Ionicons name="notifications-outline" size={30} color="#fff"/>
                 {
                     count > 0 ?
-                        <View style={notificationIconStyles.notificationBadge}>
-                            <Text style={notificationIconStyles.notificationText}>!</Text>
+                        <View style={styles.notificationBadge}>
+                            <Text style={styles.notificationText}>!</Text>
                         </View>
                         : null
                 }
@@ -34,7 +35,12 @@ export const NotificationIcon = () => {
     );
 }
 
-const notificationIconStyles = StyleSheet.create({
+const styles = StyleSheet.create({
+    container: {
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        margin: 16,
+    },
     notificationBadge: {
         position: 'absolute',
         top: -4,

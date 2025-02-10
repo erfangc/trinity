@@ -10,7 +10,7 @@ import {
     updateDoc,
     where
 } from "firebase/firestore";
-import {db} from "./firebaseConfig";
+import {auth, db} from "./firebaseConfig";
 
 export const fetchPrayIntentions = (N: number, onData: (prayerIntentions: PrayerIntention[]) => void): Unsubscribe => {
     const q = query(
@@ -59,8 +59,12 @@ export const fetchPrayIntentionById = async (id: string): Promise<PrayerIntentio
 
 export const markPrayerIntentionAsAnswered = async (id: string): Promise<boolean> => {
     try {
+        const currentUser = auth.currentUser;
+        if (!currentUser) {
+            return false;
+        }
         const docRef = doc(db, "prayerIntentions", id); // Reference to the document by ID
-        await updateDoc(docRef, { answered: true }); // Update the `answered` field to true
+        await updateDoc(docRef, { answered: true, answeredByFirstName: currentUser.displayName ?? 'A faithful servant of God', answeredByUserId: currentUser.uid}); // Update the `answered` field to true
         console.log(`Prayer intention with ID: ${id} marked as answered.`);
         return true;
     } catch (error) {

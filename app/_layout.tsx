@@ -57,6 +57,7 @@ export default function RootLayout() {
                 <Stack.Screen name="landing"/>
                 <Stack.Screen name="sign-up"/>
                 <Stack.Screen name="sign-in"/>
+                <Stack.Screen name="inbox"/>
                 <Stack.Screen name="create-prayer-intention"/>
                 <Stack.Screen name="prayer-intentions/:id"/>
                 <Stack.Screen name="+not-found"/>
