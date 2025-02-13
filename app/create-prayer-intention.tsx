@@ -14,7 +14,8 @@ import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/ui/CtaButton";
 import {useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {addPrayIntention} from "@/addPrayerIntention"; // For the back arrow icon
+import {addPrayIntention} from "@/addPrayerIntention";
+import {auth} from "@/firebaseConfig"; // For the back arrow icon
 
 export function CreatePrayerIntentionScreen() {
 
@@ -23,16 +24,20 @@ export function CreatePrayerIntentionScreen() {
     const [name, setName] = useState<string>();
 
     useEffect(() => {
-        AsyncStorage
-            .getItem('name')
-            .then(value => {
-                if (value) {
-                    setName(value);
-                } else {
-                    router.navigate('/');
-                }
-            })
-            .catch(err => console.log(err));
+        if (auth.currentUser?.displayName) {
+            setName(auth.currentUser?.displayName);
+        } else {
+            AsyncStorage
+                .getItem('name')
+                .then(value => {
+                    if (value) {
+                        setName(value);
+                    } else {
+                        router.navigate('/');
+                    }
+                })
+                .catch(err => console.log(err));
+        }
     }, []);
 
     const handleSubmit = async () => {
@@ -85,7 +90,7 @@ export function CreatePrayerIntentionScreen() {
 
                     {/* Submit Button */}
                     <View style={styles.ctaButtonContainer}>
-                        <CtaButton title="Submit Request" onPress={handleSubmit} />
+                        <CtaButton title="Submit Request" onPress={handleSubmit}/>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>
