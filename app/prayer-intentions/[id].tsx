@@ -1,10 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {View, Text, StyleSheet, TouchableOpacity, ScrollView, SafeAreaView} from "react-native";
+import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/ui/CtaButton";
 import {useLocalSearchParams, useRouter} from "expo-router";
-import {fetchPrayIntentionById, fetchPrayIntentions, markPrayerIntentionAsAnswered} from "@/fetchPrayerIntetions";
+import {fetchPrayIntentionById, markPrayerIntentionAsAnswered} from "@/fetchPrayerIntetions";
 import {auth} from "@/firebaseConfig";
+import {PrayerIntention} from "@/models";
 
 const PrayerDetailScreen = () => {
 
@@ -36,7 +37,7 @@ const PrayerDetailScreen = () => {
         }
     };
 
-    const answerer = prayerIntention?.answerByFirstName;
+    const answerer = prayerIntention?.answeredByFirstName;
     const answererParish = prayerIntention?.answererParish ?? 'our Christian community';
 
     return (

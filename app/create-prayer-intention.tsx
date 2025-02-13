@@ -1,21 +1,20 @@
 import React, {useEffect, useState} from "react";
 import {
-    View,
-    Text,
-    TextInput,
-    StyleSheet,
-    TouchableOpacity,
     Alert,
     KeyboardAvoidingView,
     Platform,
-    ScrollView
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View
 } from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/ui/CtaButton";
 import {useRouter} from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {addPrayIntention} from "@/addPrayerIntention";
-import {auth} from "@/firebaseConfig"; // For the back arrow icon
+import getUser from "@/getUser"; // For the back arrow icon
 
 export function CreatePrayerIntentionScreen() {
 
@@ -24,20 +23,17 @@ export function CreatePrayerIntentionScreen() {
     const [name, setName] = useState<string>();
 
     useEffect(() => {
-        if (auth.currentUser?.displayName) {
-            setName(auth.currentUser?.displayName);
-        } else {
-            AsyncStorage
-                .getItem('name')
-                .then(value => {
-                    if (value) {
-                        setName(value);
-                    } else {
-                        router.navigate('/');
-                    }
-                })
-                .catch(err => console.log(err));
-        }
+        getUser()
+            .then(user => {
+                if (user !== undefined) {
+                    setName(user.name ?? user.firstName);
+                } else {
+
+                }
+            })
+            .catch(error => {
+                console.error("Error getting user: ", error);
+            });
     }, []);
 
     const handleSubmit = async () => {

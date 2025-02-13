@@ -11,6 +11,8 @@ import {
     where
 } from "firebase/firestore";
 import {auth, db} from "./firebaseConfig";
+import {PrayerIntention} from "@/models";
+import getUser from "@/getUser";
 
 export const fetchPrayIntentions = (N: number, onData: (prayerIntentions: PrayerIntention[]) => void): Unsubscribe => {
 
@@ -68,16 +70,16 @@ export const markPrayerIntentionAsAnswered = async (id: string): Promise<boolean
 
         // Reference to the document by ID
         const docRef = doc(db, "prayerIntentions", id);
-        const answererParish = getParish();
+        const user = await getUser();
 
         /*
         Update the prayerIntention by setting answer to true and adding who answered the prayer
          */
         await updateDoc(docRef, {
             answered: true,
-            answeredByFirstName: currentUser.displayName ?? 'A faithful servant of God',
+            answeredByFirstName: user?.firstName ?? 'A faithful servant of God',
             answeredByUserId: currentUser.uid,
-            answererParish: answererParish,
+            answererParish: user?.parish,
         });
 
         console.log(`Prayer intention with ID: ${id} marked as answered.`);
@@ -87,21 +89,3 @@ export const markPrayerIntentionAsAnswered = async (id: string): Promise<boolean
         return false;
     }
 };
-
-async function getParish(): Promise<string | null> {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-        return null;
-    }
-
-    const userDocRef = doc(db, "users", currentUser.uid); // Fetch user's document using their UID
-    const userDocSnap = await getDoc(userDocRef);
-
-    if (userDocSnap.exists()) {
-        const userData = userDocSnap.data();
-        return userData.parish;
-    } else {
-        return null;
-    }
-
-}

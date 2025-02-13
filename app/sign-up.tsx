@@ -1,21 +1,8 @@
 import React, {useState} from "react";
-import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    TouchableOpacity,
-    View,
-} from "react-native";
+import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
-import {
-    createUserWithEmailAndPassword,
-    linkWithCredential,
-    EmailAuthProvider,
-    updateProfile,
-} from "firebase/auth";
+import {createUserWithEmailAndPassword, EmailAuthProvider, linkWithCredential,} from "firebase/auth";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {auth, db} from "@/firebaseConfig";
 import {TextInputField} from "@/components/ui/TextInputField";
@@ -49,8 +36,6 @@ export default function SignUp() {
                 const credential = EmailAuthProvider.credential(username, password);
                 const linkedUser = await linkWithCredential(currentUser, credential);
                 console.log("Anonymous account successfully linked:", linkedUser.user.uid);
-
-                await updateProfile(linkedUser.user, {displayName: firstName});
 
                 await setDoc(userDocRef, {
                     firstName,
