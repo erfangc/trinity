@@ -8,6 +8,13 @@ import {auth} from "@/firebaseConfig";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
 import {NotificationIcon} from "@/components/NotificationIcon"; // Expo supports this out of the box
 
+/**
+ * A functional component that represents the main landing screen of the application.
+ * It displays a list of prayer intentions, allows users to navigate to details of a selected prayer intention,
+ * make a new prayer request, or sign out of the application.
+ *
+ * @return {JSX.Element} The rendered LandingScreen component.
+ */
 export default function LandingScreen() {
 
     const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);

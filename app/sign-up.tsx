@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     Alert,
     KeyboardAvoidingView,
@@ -8,16 +8,17 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import {Ionicons} from "@expo/vector-icons";
+import {useRouter} from "expo-router";
 import {
     createUserWithEmailAndPassword,
     linkWithCredential,
     EmailAuthProvider,
+    updateProfile,
 } from "firebase/auth";
 import {doc, getDoc, setDoc} from "firebase/firestore";
-import { auth, db } from "@/firebaseConfig";
-import { TextInputField } from "@/components/ui/TextInputField";
+import {auth, db} from "@/firebaseConfig";
+import {TextInputField} from "@/components/ui/TextInputField";
 import CtaButton from "@/components/ui/CtaButton";
 
 export default function SignUp() {
@@ -48,6 +49,8 @@ export default function SignUp() {
                 const credential = EmailAuthProvider.credential(username, password);
                 const linkedUser = await linkWithCredential(currentUser, credential);
                 console.log("Anonymous account successfully linked:", linkedUser.user.uid);
+
+                await updateProfile(linkedUser.user, {displayName: firstName});
 
                 await setDoc(userDocRef, {
                     firstName,
@@ -83,14 +86,14 @@ export default function SignUp() {
     return (
         <View style={styles.container}>
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-                <Ionicons name="arrow-back" size={24} color="white" />
+                <Ionicons name="arrow-back" size={24} color="white"/>
             </TouchableOpacity>
             <KeyboardAvoidingView
                 style={styles.keyboardAvoidingContainer}
                 behavior={Platform.OS === "ios" ? "padding" : undefined}
             >
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
-                    <View style={{ gap: 6, marginBottom: 24 }}>
+                    <View style={{gap: 6, marginBottom: 24}}>
                         <TextInputField
                             label="First Name"
                             placeholder="ex: John"
@@ -133,7 +136,7 @@ export default function SignUp() {
 
                     {/* Submit Button */}
                     <View>
-                        <CtaButton title="Create Account" onPress={handleCreateAccount} />
+                        <CtaButton title="Create Account" onPress={handleCreateAccount}/>
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

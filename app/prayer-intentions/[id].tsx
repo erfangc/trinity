@@ -53,7 +53,8 @@ const PrayerDetailScreen = () => {
 
                 {/* Response Box */}
                 {
-                    prayerIntention?.answered ?
+                    prayerIntention?.answered
+                        ?
                         <View style={styles.responseBox}>
                             <Text style={styles.responseText}>
                                 “Jeff, a devoted parishioner from St. Francis of Assisi in Frisco, Texas, lifted
@@ -66,7 +67,8 @@ const PrayerDetailScreen = () => {
 
                 {/* Primary CTA Button */}
                 {
-                    currentUser && !prayerIntention?.answered ?
+                    currentUser && !prayerIntention?.answered
+                        ?
                         <View style={styles.buttonContainer}>
                             <CtaButton
                                 title={`Pray for ${prayerIntention?.from}`}
