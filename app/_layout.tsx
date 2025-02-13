@@ -2,15 +2,15 @@ import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
 import {useFonts} from 'expo-font';
 import {Stack, useRouter} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import {ActivityIndicator, Alert, Platform, StatusBar, StyleSheet, View} from 'react-native';
+import {ActivityIndicator, StatusBar, StyleSheet, View} from 'react-native';
 import {useEffect, useRef, useState} from 'react';
 import 'react-native-reanimated';
 import {onAuthStateChanged} from "@firebase/auth";
 import * as Notifications from 'expo-notifications';
 import {useColorScheme} from '@/hooks/useColorScheme';
-import {auth, db} from "@/firebaseConfig";
-import * as Device from 'expo-device';
-import {arrayUnion, doc, updateDoc} from "firebase/firestore";
+import {auth} from "@/firebaseConfig";
+import {savePushToken} from "@/savePushToken";
+import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -49,7 +49,6 @@ export default function RootLayout() {
         return () => unsubscribe();
     }, []);
 
-    const [expoPushToken, setExpoPushToken] = useState('');
     const [notification, setNotification] = useState<Notifications.Notification | null>(null);
     const notificationListener = useRef<any>();
     const responseListener = useRef<any>();
@@ -58,8 +57,6 @@ export default function RootLayout() {
         // Register for push notifications and get the token.
         registerForPushNotificationsAsync().then((token) => {
             if (token) {
-                setExpoPushToken(token);
-                // Send the token to Firestore for the currently authenticated user.
                 savePushToken(token);
             }
         });
@@ -109,63 +106,6 @@ export default function RootLayout() {
     );
 }
 
-
-// Registers for push notifications and returns the Expo push token.
-async function registerForPushNotificationsAsync() {
-    let token;
-    // Note: On simulators, push notifications may not be supported.
-    if (!Device.isDevice) {
-        Alert.alert('Push notifications are not supported on simulators.');
-        return;
-    }
-
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-        const { status } = await Notifications.requestPermissionsAsync();
-        finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-        Alert.alert('Failed to get push token for push notifications!');
-        return;
-    }
-    try {
-        token = (await Notifications.getExpoPushTokenAsync()).data;
-        console.log('Expo push token:', token);
-    } catch (error) {
-        console.error('Error getting Expo push token:', error);
-    }
-
-    // Android-specific configuration.
-    if (Platform.OS === 'android') {
-        await Notifications.setNotificationChannelAsync('default', {
-            name: 'default',
-            importance: Notifications.AndroidImportance.MAX,
-            vibrationPattern: [0, 250, 250, 250],
-            lightColor: '#FF231F7C',
-        });
-    }
-
-    return token;
-}
-
-// Saves the push token to Firestore under the currently authenticated user.
-async function savePushToken(token: string) {
-    const user = auth.currentUser;
-    if (!user) {
-        console.log("User not logged in, can't save push token.");
-        return;
-    }
-    try {
-        const userRef = doc(db, 'users', user.uid);
-        await updateDoc(userRef, {
-            expoPushTokens: arrayUnion(token),
-        });
-        console.log("Push token saved to Firestore.");
-    } catch (error) {
-        console.error("Error saving push token to Firestore:", error);
-    }
-}
 
 // Styles
 const styles = StyleSheet.create({

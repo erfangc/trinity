@@ -7,5 +7,6 @@ interface PrayerIntention {
     answered: boolean;
     answerByFirstName?: string;
     answerByUserId?: string;
+    answererParish?: string;
     read?: boolean;
 }

@@ -36,6 +36,9 @@ const PrayerDetailScreen = () => {
         }
     };
 
+    const answerer = prayerIntention?.answerByFirstName;
+    const answererParish = prayerIntention?.answererParish ?? 'our Christian community';
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Back Button */}
@@ -57,7 +60,7 @@ const PrayerDetailScreen = () => {
                         ?
                         <View style={styles.responseBox}>
                             <Text style={styles.responseText}>
-                                “Jeff, a devoted parishioner from St. Francis of Assisi in Frisco, Texas, lifted
+                                “{answerer}, a devoted parishioner from {answererParish}, lifted
                                 you up in prayer.”
                             </Text>
                             <Text style={styles.timestamp}>1/2/2023 1:33AM</Text>
