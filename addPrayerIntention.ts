@@ -19,7 +19,6 @@ export const addPrayIntention = async (
             read: false,
             creationDate: Timestamp.now(),
         });
-        console.log("Document successfully written!");
     } catch (error) {
         console.error("Error adding document: ", error);
     }

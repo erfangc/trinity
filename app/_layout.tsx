@@ -49,7 +49,7 @@ export default function RootLayout() {
         return () => unsubscribe();
     }, []);
 
-    const [notification, setNotification] = useState<Notifications.Notification | null>(null);
+    const [, setNotification] = useState<Notifications.Notification | null>(null);
     const notificationListener = useRef<any>();
     const responseListener = useRef<any>();
 
