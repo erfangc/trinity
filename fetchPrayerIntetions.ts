@@ -15,10 +15,16 @@ import {PrayerIntention} from "@/models";
 import getUser from "@/getUser";
 
 export const fetchPrayIntentions = (N: number, onData: (prayerIntentions: PrayerIntention[]) => void): Unsubscribe => {
+    const currentUser = auth.currentUser;
+
+    if (!currentUser) {
+        throw new Error("User not authenticated");
+    }
 
     const q = query(
         collection(db, "prayerIntentions"),
         where("answered", "==", false),
+        where("createdByUserId", "!=", currentUser.uid), // Exclude intentions created by the current user
         orderBy("creationDate", "asc"),
         limit(N)
     );

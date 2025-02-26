@@ -6,7 +6,8 @@ import React, {useEffect, useState} from "react";
 import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
 import {auth} from "@/firebaseConfig";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
-import {NotificationIcon} from "@/components/NotificationIcon"; // Expo supports this out of the box
+import {NotificationIcon} from "@/components/NotificationIcon";
+import {PrayerIntention} from "@/models"; // Expo supports this out of the box
 
 /**
  * A functional component that represents the main landing screen of the application.

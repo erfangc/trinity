@@ -44,6 +44,10 @@ export default function RootLayout() {
             if (user) {
                 console.log("User is signed in:", user);
                 router.push('/landing');
+                const token = await registerForPushNotificationsAsync();
+                if (token) {
+                    await savePushToken(token);
+                }
             }
         });
         return () => unsubscribe();

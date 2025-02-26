@@ -25,8 +25,7 @@ const expo = new Expo();
  * 3. Sends a push notification to all the Expo push tokens listed for that user.
  */
 exports.sendNotificationOnPrayerIntentionUpdate = functions.firestore
-    .document('prayerIntentions/{docId}')
-    .onUpdate(async (change, context) => {
+    .onDocumentUpdated('prayerIntentions/{docId}', async (change, context) => {
         const afterData = change.after.data();
         const userId = afterData.userId;
         if (!userId) {
