@@ -21,9 +21,13 @@ export default function LandingScreen() {
     const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
     const router = useRouter();
 
+    const currentUser = auth.currentUser;
+
     useEffect(() => {
-        return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
-    }, []);
+        if (currentUser && !currentUser.isAnonymous) {
+            return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
+        }
+    }, [currentUser]);
 
     const handleSignOut = () => {
         signOut(auth)
@@ -34,6 +38,10 @@ export default function LandingScreen() {
     const navigateToPrayerIntention = (prayerIntention: PrayerIntention) => {
         router.push(`/prayer-intentions/${prayerIntention.id}`);
     };
+
+    const emptyStateMessage = currentUser?.isAnonymous
+        ? "Other people's prayer intentions will appear here. You can only pray for them if you sign up."
+        : "There are currently no prayer intentions available. Please check back later!";
 
     return (
         <ImageBackground
@@ -54,9 +62,15 @@ export default function LandingScreen() {
                 {
                     prayerIntentions.length === 0
                         ?
-                        <View style={{opacity: 0.9, backgroundColor: '#7E4D26', marginHorizontal: 12, padding: 24, borderRadius: 8}}>
+                        <View style={{
+                            opacity: 0.9,
+                            backgroundColor: '#7E4D26',
+                            marginHorizontal: 12,
+                            padding: 24,
+                            borderRadius: 8,
+                        }}>
                             <Text style={{color: '#fff'}}>
-                                There are currently no prayer intentions available. Please check back later!
+                                {emptyStateMessage}
                             </Text>
                         </View>
                         : null
@@ -64,8 +78,10 @@ export default function LandingScreen() {
             </SafeAreaView>
             <View style={{marginBottom: 24}}>
                 <CtaButton title={"REQUEST A PRAYER"} onPress={() => router.push('/create-prayer-intention')}/>
-                <TouchableOpacity style={styles.signOutContainer}
-                                  onPress={() => router.push('/create-prayer-intention')}>
+                <TouchableOpacity
+                    style={styles.signOutContainer}
+                    onPress={() => router.push('/create-prayer-intention')}
+                >
                     <Text style={styles.signOutText} onPress={handleSignOut}>
                         Sign Out
                     </Text>

@@ -24,7 +24,7 @@ export const fetchPrayIntentions = (N: number, onData: (prayerIntentions: Prayer
     const q = query(
         collection(db, "prayerIntentions"),
         where("answered", "==", false),
-        where("createdByUserId", "!=", currentUser.uid), // Exclude intentions created by the current user
+        where("userId", "!=", currentUser.uid), // Exclude intentions created by the current user
         orderBy("creationDate", "asc"),
         limit(N)
     );

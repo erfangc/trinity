@@ -5,7 +5,7 @@
             "queryScope": "COLLECTION",
             "fields": [
                 { "fieldPath": "answered", "order": "ASCENDING" },
-                { "fieldPath": "createdByUserId", "order": "ASCENDING" },
+                { "fieldPath": "userId", "order": "ASCENDING" },
                 { "fieldPath": "creationDate", "order": "ASCENDING" }
             ]
         },
@@ -14,7 +14,7 @@
             "queryScope": "COLLECTION",
             "fields": [
                 { "fieldPath": "answered", "order": "ASCENDING" },
-                { "fieldPath": "createdByUserId", "order": "DESCENDING" },
+                { "fieldPath": "userId", "order": "DESCENDING" },
                 { "fieldPath": "creationDate", "order": "ASCENDING" }
             ]
         },
