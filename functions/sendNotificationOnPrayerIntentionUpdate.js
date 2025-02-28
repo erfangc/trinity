@@ -26,7 +26,7 @@ const expo = new Expo();
  */
 exports.sendNotificationOnPrayerIntentionUpdate = functions.firestore
     .onDocumentUpdated('prayerIntentions/{docId}', async (change, context) => {
-        const afterData = change.after.data();
+        const afterData = change.data?.after?.data();
         const userId = afterData.userId;
         if (!userId) {
             console.log('No userId found in the updated document.');
@@ -66,12 +66,10 @@ exports.sendNotificationOnPrayerIntentionUpdate = functions.firestore
 
         // Send notifications in chunks.
         let chunks = expo.chunkPushNotifications(messages);
-        let tickets = [];
 
         for (let chunk of chunks) {
             try {
-                let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
-                tickets.push(...ticketChunk);
+                await expo.sendPushNotificationsAsync(chunk);
             } catch (error) {
                 console.error('Error sending notifications:', error);
             }
