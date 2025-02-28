@@ -60,7 +60,7 @@ exports.sendNotificationOnPrayerIntentionUpdate = functions.firestore
                 sound: 'default',
                 title: 'Prayer Intention Updated',
                 body: 'Your prayer intention has been updated.',
-                data: { userId: userId, docId: context.params.docId },
+                data: { userId: userId, docId: afterData.docId },
             });
         }
 
