@@ -1,18 +1,40 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style type="text/tailwindcss">
-        @theme {
-            --color-clifford: #da373d;
+    <title>Trinity Prayer</title>
+    <style>
+        #top {
+            background-image: url('./background-image.webp');
+            background-size: cover;
+            background-color: rgba(0, 0, 0, 0.5);
+            background-blend-mode: darken;
+            background-position: center;
+            background-repeat: no-repeat;
         }
     </style>
+
 </head>
 <body>
-<h1 class="text-3xl font-bold underline">
-    Hello world!
-</h1>
+<section id="top" class="h-[60vh]">
+    <div class="flex flex-col items-center py-8">
+        <h1 class="text-3xl font-extrabold text-white">TRINITY PRAYER</h1>
+    </div>
+    <h2 class="text-5xl font-serif text-white h-full flex items-center justify-center">
+        Connecting through prayer and faith
+    </h2>
+</section>
+<section id="bottom" class="bg-black min-h-[37vh] flex items-center justify-center">
+    <button class="bg-white text-black font-bold py-2 px-4 rounded-full cursor-pointer" onclick="window.location.href='./privacy.html'">
+        Privacy Statement
+    </button>
+</section>
+<div  class="bg-black flex items-end justify-center">
+    <p class="text-sm md:text-base text-gray-200 pb-4">
+        Copyright © 2025 <span class="font-bold">Trinity Prayer</span> - All Rights Reserved.
+    </p>
+</div>
 </body>
 </html>
