@@ -4,6 +4,7 @@ import React, {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
 import {collection, onSnapshot, orderBy, query, where} from "firebase/firestore";
 import {auth, db} from "@/firebaseConfig";
+import {PrayerIntention} from "@/models";
 
 export default function Inbox() {
 

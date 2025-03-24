@@ -7,7 +7,8 @@ import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
 import {auth} from "@/firebaseConfig";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
 import {NotificationIcon} from "@/components/NotificationIcon";
-import {PrayerIntention} from "@/models"; // Expo supports this out of the box
+import {PrayerIntention} from "@/models";
+import {SettingsIcon} from "@/components/SettingsIcon"; // Expo supports this out of the box
 
 /**
  * A functional component that represents the main landing screen of the application.
@@ -50,7 +51,10 @@ export default function LandingScreen() {
             resizeMode="cover"
         >
             <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', gap: 16, width: '100%'}}>
-                <NotificationIcon />
+                <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <SettingsIcon />
+                    <NotificationIcon />
+                </View>
 
                 {prayerIntentions.map(prayerIntention => (
                     <PrayerRequestCard
