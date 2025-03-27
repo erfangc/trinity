@@ -1,16 +1,19 @@
 import {StyleSheet, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import React from "react";
-import {useRouter} from "expo-router";
+import {useGregorianChant} from "@/app/GregorianChantContext";
 
-export const SettingsIcon = () => {
+export const PlayPauseIcon = () => {
 
-    const router = useRouter();
+    const {isPlaying, togglePlayPause} = useGregorianChant();
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity onPress={() => router.push('/settings')}>
-                <Ionicons name="settings-outline" size={30} color="#fff"/>
+            <TouchableOpacity onPress={togglePlayPause}>
+                <Ionicons
+                    name={isPlaying ? 'pause-circle' : 'play-circle'}
+                    size={30} color="#fff"
+                />
             </TouchableOpacity>
         </View>
     );

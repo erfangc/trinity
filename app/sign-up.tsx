@@ -5,8 +5,8 @@ import {useRouter} from "expo-router";
 import {createUserWithEmailAndPassword, EmailAuthProvider, linkWithCredential,} from "firebase/auth";
 import {doc, getDoc, setDoc} from "firebase/firestore";
 import {auth, db} from "@/firebaseConfig";
-import {TextInputField} from "@/components/ui/TextInputField";
-import CtaButton from "@/components/ui/CtaButton";
+import {TextInputField} from "@/components/TextInputField";
+import CtaButton from "@/components/CtaButton";
 
 export default function SignUp() {
     const router = useRouter();

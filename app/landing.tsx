@@ -1,5 +1,5 @@
 import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import CtaButton from "@/components/ui/CtaButton";
+import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
 import {signOut} from "firebase/auth";
 import React, {useEffect, useState} from "react";
@@ -8,7 +8,8 @@ import {auth} from "@/firebaseConfig";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
 import {NotificationIcon} from "@/components/NotificationIcon";
 import {PrayerIntention} from "@/models";
-import {SettingsIcon} from "@/components/SettingsIcon"; // Expo supports this out of the box
+import {SettingsIcon} from "@/components/SettingsIcon";
+import {PlayPauseIcon} from "@/components/PlayPauseIcon"; // Expo supports this out of the box
 
 /**
  * A functional component that represents the main landing screen of the application.
@@ -52,8 +53,11 @@ export default function LandingScreen() {
         >
             <SafeAreaView style={{flex: 1, justifyContent: 'flex-start', gap: 16, width: '100%'}}>
                 <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <SettingsIcon />
-                    <NotificationIcon />
+                    <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+                        <SettingsIcon/>
+                        <PlayPauseIcon/>
+                    </View>
+                    <NotificationIcon/>
                 </View>
 
                 {prayerIntentions.map(prayerIntention => (

@@ -1,14 +1,15 @@
-import {ImageBackground, StyleSheet, Text, TextInput, View} from 'react-native';
-import CtaButton from "@/components/ui/CtaButton";
-import {SignInButton} from "@/components/ui/SignInButton";
-import {useEffect, useState} from "react";
+import {ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
+import CtaButton from "@/components/CtaButton";
+import {SignInButton} from "@/components/SignInButton";
+import React, {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {SignUpButton} from "@/components/ui/SignUpButton";
-import {OrSeparator} from "@/components/ui/OrSeparator";
+import {SignUpButton} from "@/components/SignUpButton";
+import {OrSeparator} from "@/components/OrSeparator";
 import {signInAnonymously} from "@firebase/auth";
 import {auth, db} from "@/firebaseConfig";
 import {doc, setDoc} from "firebase/firestore";
+import {PlayPauseIcon} from "@/components/PlayPauseIcon";
 
 export default function HomeScreen() {
 
@@ -48,28 +49,34 @@ export default function HomeScreen() {
             style={styles.background}
             resizeMode="cover"
         >
-            <View style={styles.overlay}>
-
-                <Text style={styles.title}>Login Page</Text>
-                <SignInButton/>
-                <SignUpButton/>
-                <OrSeparator/>
-
-                {/* Input Field */}
-                <Text style={styles.label}>Your Name</Text>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Enter your name"
-                    placeholderTextColor="#D9D9D9"
-                    value={name}
-                    onChangeText={(text) => setName(text)}
-                />
-
-                {/* Confirm Button */}
-                <View style={styles.confirmButton}>
-                    <CtaButton title="CONFIRM" onPress={handleConfirm}/>
+            <SafeAreaView style={styles.container}>
+                <View style={{marginRight: 20}}>
+                    <PlayPauseIcon/>
                 </View>
-            </View>
+                <View style={styles.contentContainer}>
+                    <View style={styles.overlay}>
+                        <Text style={styles.title}>Login Page</Text>
+                        <SignInButton/>
+                        <SignUpButton/>
+                        <OrSeparator/>
+
+                        {/* Input Field */}
+                        <Text style={styles.label}>Your Name</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="Enter your name"
+                            placeholderTextColor="#D9D9D9"
+                            value={name}
+                            onChangeText={(text) => setName(text)}
+                        />
+
+                        {/* Confirm Button */}
+                        <View style={styles.confirmButton}>
+                            <CtaButton title="CONFIRM" onPress={handleConfirm}/>
+                        </View>
+                    </View>
+                </View>
+            </SafeAreaView>
         </ImageBackground>
     );
 }
@@ -77,9 +84,14 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     background: {
         flex: 1,
-        resizeMode: "cover", // Cover the whole screen
-        justifyContent: "center",
-        alignItems: "center",
+        resizeMode: "cover",
+    },
+    container: {
+        flex: 1,
+    },
+    buttonContainer: {},
+    contentContainer: {
+        flex: 1, justifyContent: "center", alignItems: "center"
     },
     overlay: {
         width: "85%",

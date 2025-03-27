@@ -36,6 +36,7 @@ export const fetchPrayIntentions = (N: number, onData: (prayerIntentions: Prayer
                     id: doc.id,
                     ...doc.data(),
                     creationDate: doc.data().creationDate.toDate(),
+                    answeredTime: doc.data().answeredTime?.toDate(),
                 } as PrayerIntention;
             });
             onData(prayerIntentions);
@@ -56,6 +57,7 @@ export const fetchPrayIntentionById = async (id: string): Promise<PrayerIntentio
                 id: docSnap.id,
                 ...docSnap.data(),
                 creationDate: docSnap.data().creationDate.toDate(),
+                answeredTime: docSnap.data().answeredTime?.toDate(),
             } as PrayerIntention;
         } else {
             console.warn(`No prayer intention found for ID: ${id}`);
@@ -86,6 +88,7 @@ export const markPrayerIntentionAsAnswered = async (id: string): Promise<boolean
             answeredByFirstName: user?.firstName ?? 'A faithful servant of God',
             answeredByUserId: currentUser.uid,
             answererParish: user?.parish,
+            answeredTime: new Date(),
         });
 
         console.log(`Prayer intention with ID: ${id} marked as answered.`);

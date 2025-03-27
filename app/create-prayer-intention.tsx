@@ -11,7 +11,7 @@ import {
     View
 } from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import CtaButton from "@/components/ui/CtaButton";
+import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
 import {addPrayIntention} from "@/addPrayerIntention";
 import getUser from "@/getUser"; // For the back arrow icon
@@ -76,7 +76,7 @@ export function CreatePrayerIntentionScreen() {
                         <Text style={styles.label}>PRAYER INTENTION</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="Enter your pray intention here. This can be anything you wish to share about your current situation in life"
+                            placeholder="Enter your prayer intention here. This can be anything you wish to share about your current situation in life"
                             placeholderTextColor="#B0B0B0"
                             value={prayIntentionMessage}
                             onChangeText={setPrayIntentionMessage}

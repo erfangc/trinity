@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import CtaButton from "@/components/ui/CtaButton";
+import CtaButton from "@/components/CtaButton";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {fetchPrayIntentionById, markPrayerIntentionAsAnswered} from "@/fetchPrayerIntetions";
 import {auth} from "@/firebaseConfig";
@@ -61,10 +61,10 @@ const PrayerDetailScreen = () => {
                         ?
                         <View style={styles.responseBox}>
                             <Text style={styles.responseText}>
-                                “{answerer}, a devoted parishioner from {answererParish}, lifted
+                                “{answerer?.trim()}, a devoted parishioner from {answererParish}, lifted
                                 you up in prayer.”
                             </Text>
-                            <Text style={styles.timestamp}>1/2/2023 1:33AM</Text>
+                            <Text style={styles.timestamp}>{prayerIntention?.answeredTime?.toLocaleString()}</Text>
                         </View>
                         : null
                 }

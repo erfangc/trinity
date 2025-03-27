@@ -1,8 +1,8 @@
 import React, {useState} from "react";
 import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {TextInputField} from "@/components/ui/TextInputField";
-import CtaButton from "@/components/ui/CtaButton";
+import {TextInputField} from "@/components/TextInputField";
+import CtaButton from "@/components/CtaButton";
 import {signInWithEmailAndPassword} from "firebase/auth"; // Import Firebase sign-in function
 import {auth} from "@/firebaseConfig"; // Import Firebase auth instance
 import {useRouter} from "expo-router";

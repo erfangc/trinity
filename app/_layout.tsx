@@ -11,6 +11,7 @@ import {useColorScheme} from '@/hooks/useColorScheme';
 import {auth} from "@/firebaseConfig";
 import {savePushToken} from "@/savePushToken";
 import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
+import {GregorianChantContextProvider} from "@/app/GregorianChantContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -94,20 +95,22 @@ export default function RootLayout() {
 
 
     return (
-        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <StatusBar barStyle="light-content"/>
-            <Stack screenOptions={{headerShown: false}}>
-                <Stack.Screen name="index"/>
-                <Stack.Screen name="landing"/>
-                <Stack.Screen name="sign-up"/>
-                <Stack.Screen name="sign-in"/>
-                <Stack.Screen name="inbox"/>
-                <Stack.Screen name="settings"/>
-                <Stack.Screen name="create-prayer-intention"/>
-                <Stack.Screen name="prayer-intentions/:id"/>
-                <Stack.Screen name="+not-found"/>
-            </Stack>
-        </ThemeProvider>
+        <GregorianChantContextProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <StatusBar barStyle="light-content"/>
+                <Stack screenOptions={{headerShown: false}}>
+                    <Stack.Screen name="index"/>
+                    <Stack.Screen name="landing"/>
+                    <Stack.Screen name="sign-up"/>
+                    <Stack.Screen name="sign-in"/>
+                    <Stack.Screen name="inbox"/>
+                    <Stack.Screen name="settings"/>
+                    <Stack.Screen name="create-prayer-intention"/>
+                    <Stack.Screen name="prayer-intentions/:id"/>
+                    <Stack.Screen name="+not-found"/>
+                </Stack>
+            </ThemeProvider>
+        </GregorianChantContextProvider>
     );
 }
 

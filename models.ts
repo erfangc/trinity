@@ -10,6 +10,7 @@ export interface PrayerIntention {
     answeredByFirstName?: string;
     answerByUserId?: string;
     answererParish?: string;
+    answeredTime?: Date;
     read?: boolean;
 }
 
