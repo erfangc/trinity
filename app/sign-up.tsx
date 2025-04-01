@@ -112,7 +112,7 @@ export default function SignUp() {
                             onChangeText={setPassword}
                         />
                         <TextInputField
-                            label="Parish"
+                            label="Church"
                             value={parish}
                             placeholder="ex: St Francis of Assisi"
                             onChangeText={setParish}
