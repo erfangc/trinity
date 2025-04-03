@@ -5,13 +5,12 @@ import * as SplashScreen from 'expo-splash-screen';
 import {ActivityIndicator, StatusBar, StyleSheet, View} from 'react-native';
 import {useEffect, useRef, useState} from 'react';
 import 'react-native-reanimated';
-import {onAuthStateChanged} from "@firebase/auth";
 import * as Notifications from 'expo-notifications';
 import {useColorScheme} from '@/hooks/useColorScheme';
-import {auth} from "@/firebaseConfig";
 import {savePushToken} from "@/savePushToken";
 import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
 import {GregorianChantContextProvider} from "@/app/GregorianChantContext";
+import {supabase} from "@/supabase";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -41,17 +40,20 @@ export default function RootLayout() {
     const router = useRouter();
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                console.log("User is signed in:", user);
-                router.push('/landing');
+        const {data} = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN') {
                 const token = await registerForPushNotificationsAsync();
                 if (token) {
                     await savePushToken(token);
                 }
+                console.log('Signed in', session);
+                router.push('/landing');
+            } else if (event === 'SIGNED_OUT') {
+                console.log('Signed out');
+                router.push('/sign-in');
             }
         });
-        return () => unsubscribe();
+        return () => data.subscription.unsubscribe();
     }, []);
 
     const [, setNotification] = useState<Notifications.Notification | null>(null);

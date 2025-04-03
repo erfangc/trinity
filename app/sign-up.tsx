@@ -2,11 +2,9 @@ import React, {useState} from "react";
 import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
-import {createUserWithEmailAndPassword, EmailAuthProvider, linkWithCredential,} from "firebase/auth";
-import {doc, getDoc, setDoc} from "firebase/firestore";
-import {auth, db} from "@/firebaseConfig";
 import {TextInputField} from "@/components/TextInputField";
 import CtaButton from "@/components/CtaButton";
+import {supabase} from "@/supabase";
 
 export default function SignUp() {
     const router = useRouter();
@@ -19,45 +17,71 @@ export default function SignUp() {
     const [parish, setParish] = useState("");
 
     const handleCreateAccount = async () => {
-        if (!username || !password || !firstName) {
+        if (!username || !password || !firstName || !lastName) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
         }
 
         try {
-            const currentUser = auth.currentUser;
+            // Get the current session (check if the user is signed in anonymously)
+            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+            if (sessionError) throw sessionError;
 
-            if (currentUser?.isAnonymous) {
-                const userDocRef = doc(db, "users", currentUser?.uid);
-                const userDoc = await getDoc(userDocRef);
-                const existingName = userDoc.exists() ? userDoc.data().name : "";
-                console.log("Anonymous user detected. Attempting to link account...");
+            const anonymousUser = sessionData?.session?.user;
+            const isAnonymous = anonymousUser?.email === null;
 
-                const credential = EmailAuthProvider.credential(username, password);
-                const linkedUser = await linkWithCredential(currentUser, credential);
-                console.log("Anonymous account successfully linked:", linkedUser.user.uid);
+            if (isAnonymous) {
+                // Handle anonymous linking here
+                console.log("Anonymous user detected. Linking the account with the new credentials...");
 
-                await setDoc(userDocRef, {
-                    firstName,
-                    lastName,
-                    parish,
-                    username,
-                    name: existingName, // Preserve name
-                    createdAt: new Date(),
+                // Convert the anonymous user to a permanent account
+                const { data, error } = await supabase.auth.updateUser({
+                    email: username,
+                    password,
                 });
 
-                Alert.alert("Success", "Account created successfully!");
+                if (error) throw error;
+
+                // Insert the user details into the 'additional_user_info' table
+                const additionalInfoInsertion = await supabase
+                    .from("additional_user_info")
+                    .insert({
+                        user_id: data.user?.id,
+                        first_name: firstName,
+                        last_name: lastName,
+                        parish,
+                        created_at: new Date().toISOString(),
+                    });
+
+                if (additionalInfoInsertion.error) throw additionalInfoInsertion.error;
+
+                Alert.alert("Success", "Account successfully linked and updated!");
                 router.push("/landing");
             } else {
-                console.log("No anonymous user, creating a new account...");
-                const userCredential = await createUserWithEmailAndPassword(auth, username, password);
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    firstName,
-                    lastName,
-                    parish,
-                    username,
-                    createdAt: new Date(),
+                // Handle new user sign-up
+                console.log("No anonymous user detected. Creating a new account...");
+
+                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                    email: username,
+                    password,
                 });
+
+                if (signUpError) throw signUpError;
+
+                const userId = signUpData.user?.id;
+
+                console.log(userId);
+                // Insert the user details into the 'additional_user_info' table
+                const infoInsertion = await supabase
+                    .from("additional_user_info")
+                    .insert({
+                        id: userId,
+                        first_name: firstName,
+                        last_name: lastName,
+                        created_at: new Date().toISOString(),
+                    });
+
+                if (infoInsertion.error) throw infoInsertion.error;
 
                 Alert.alert("Success", "Account created successfully!");
                 router.push("/landing");

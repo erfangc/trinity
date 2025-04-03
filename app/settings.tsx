@@ -1,56 +1,95 @@
 import React, {useEffect, useState} from "react";
-import {Text, TouchableOpacity, View, SafeAreaView, StyleSheet, Alert} from "react-native";
+import {Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
-import {deleteDoc, doc} from "firebase/firestore";
-import {deleteUser} from "firebase/auth";
-import {auth, db} from "@/firebaseConfig";
+import {supabase} from "@/supabase";
+import {User} from "@supabase/auth-js";
+import {Database} from "@/supabaseTypes";
+import {TextInputField} from "@/components/TextInputField";
+
+type AdditionalUserInfo = Database["public"]["Tables"]["additional_user_info"]["Row"];
 
 export default function Inbox() {
-    const router = useRouter();
-    const [userData, setUserData] = useState<any>(null);
 
+    const router = useRouter();
+    const [user, setUser] = useState<User>();
+    const [additionaluseIfo, setAdditionaluseIfo] = useState<AdditionalUserInfo>();
 
     useEffect(() => {
-        const currentUser = auth.currentUser;
-        // Set the user's data if they are logged in
-        if (currentUser) {
-            setUserData({
-                email: currentUser.email,
-                uid: currentUser.uid,
-                displayName: currentUser.displayName || "No display name",
+        supabase
+            .auth
+            .getSession()
+            .then(({data, error}) => {
+                if (error) {
+                    console.error("Error getting session: ", error);
+                    Alert.alert("Error", "There was an issue getting your session: " + error.message);
+                } else {
+                    setUser(data?.session?.user);
+                }
             });
-        }
     }, []);
 
+    useEffect(() => {
+        if (user?.id) {
+            fetchAdditionalUserInfo();
+        }
+    }, [user?.id]);
 
-    const handleDeactivateAccount = async () => {
-        const currentUser = auth.currentUser;
-
-        if (!currentUser) {
-            Alert.alert("Error", "No user is currently signed in.");
+    const fetchAdditionalUserInfo = async () => {
+        if (user === undefined) {
             return;
         }
-
-
-        if (currentUser.isAnonymous) {
-            Alert.alert("Error", "Anonymous users cannot deactivate their account.");
-            return;
-        }
-
         try {
-            // Delete the user's Firestore document
-            await deleteDoc(doc(db, "users", currentUser.uid));
+            console.log(
+                "Fetching additional user info for user ID: " + user.id
+            )
+            const { data, error } = await supabase
+                .from("additional_user_info") // The table name
+                .select("*") // Select all columns (customize as needed)
+                .eq("id", user.id) // Filter by the user ID
+                .single(); // Retrieve a single row (assuming 1-to-1 relation)
 
-            // Delete the user account
-            await deleteUser(currentUser);
-
-            Alert.alert("Success", "Your account has been deactivated.");
-            router.replace("/sign-in");
-        } catch (error) {
-            Alert.alert("Error", "There was an issue deactivating your account: " + (error instanceof Error ? error.message : "unknown error"));
+            if (error) {
+                console.error("Error fetching additional user info: ", error);
+                Alert.alert("Error", "There was an issue fetching additional user information: " + error.message);
+            } else {
+                setAdditionaluseIfo(data);
+            }
+        } catch (err) {
+            console.error("Unexpected error fetching additional user info: ", err);
+            Alert.alert("Error", "An unexpected error occurred.");
         }
     };
+
+    const updateAdditionalUserInfo = async (additionalUserInfo: AdditionalUserInfo) => {
+        if (!user) {
+            return;
+        }
+        const {data, error, status, count} = await supabase.from("additional_user_info").update(additionalUserInfo).eq("id", user.id);
+        console.log(data, error, status, count);
+        if (error) {
+            Alert.alert("Error", "There was an issue updating additional user information: " + error.message);
+        }
+        fetchAdditionalUserInfo();
+    }
+
+    const handleDeactivateAccount = async () => {
+        // TODO
+    };
+
+    const updateFirstName = async (firstName: string) => {
+        if (!additionaluseIfo) {
+            return;
+        }
+        setAdditionaluseIfo({...additionaluseIfo, first_name: firstName});
+    }
+
+    const handleSave = async () => {
+        if (!additionaluseIfo) {
+            return;
+        }
+        await updateAdditionalUserInfo(additionaluseIfo);
+    }
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#221F1F"}}>
@@ -63,18 +102,21 @@ export default function Inbox() {
             </View>
 
             {/* Display User Data */}
-            {userData && (
+            {user && (
                 <View style={styles.userInfo}>
-                    <Text style={styles.userInfoText}><Text
-                        style={styles.label}>Email: </Text>{userData.email || "No email"}</Text>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>UID: </Text>{userData.uid}</Text>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>Display
-                        Name: </Text>{userData.displayName}</Text>
+                    <Text style={styles.userInfoText}><Text style={styles.label}>Email: </Text>{user.email || "No email"}</Text>
+                    <Text style={styles.userInfoText}><Text style={styles.label}>UID: </Text>{user.id}</Text>
+                    <Text style={styles.userInfoText}><Text style={styles.label}>Full Name: </Text>{additionaluseIfo?.first_name}</Text>
                 </View>
             )}
 
+            <TextInputField label={'First Name'} value={additionaluseIfo?.first_name ?? ''} onChangeText={updateFirstName}/>
+
             <TouchableOpacity style={styles.deactivateButton} onPress={handleDeactivateAccount}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Deactivate Account</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={{color: 'white', textAlign: 'center'}}>Handle Save</Text>
             </TouchableOpacity>
         </SafeAreaView>
     );
@@ -89,6 +131,13 @@ const styles = StyleSheet.create({
         marginLeft: 16,
         padding: 12,
         backgroundColor: "#D9534F",
+        borderRadius: 8,
+    },
+    saveButton: {
+        marginTop: 20,
+        marginLeft: 16,
+        padding: 12,
+        backgroundColor: "#3248e3",
         borderRadius: 8,
     },
     userInfo: {

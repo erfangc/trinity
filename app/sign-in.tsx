@@ -3,13 +3,12 @@ import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Touchable
 import {Ionicons} from "@expo/vector-icons";
 import {TextInputField} from "@/components/TextInputField";
 import CtaButton from "@/components/CtaButton";
-import {signInWithEmailAndPassword} from "firebase/auth"; // Import Firebase sign-in function
-import {auth} from "@/firebaseConfig"; // Import Firebase auth instance
 import {useRouter} from "expo-router";
+import {supabase} from "@/supabase";
 
 export default function SignIn() {
 
-    const [username, setUsername] = useState(""); // Email
+    const [email, setEmail] = useState(""); // Email
     const [password, setPassword] = useState("");
     const router = useRouter();
 
@@ -19,19 +18,17 @@ export default function SignIn() {
             return;
         }
 
-        try {
-            // Try to sign in the user with the provided credentials
-            const userCredential = await signInWithEmailAndPassword(auth, username, password);
-            const user = userCredential.user;
-            router.push("/landing");
-        } catch (error: any) {
-            console.error("Error signing in: ", error.message);
+        const {data, error} = await supabase.auth.signInWithPassword({email: username, password});
+        if (error) {
             Alert.alert("Error", error.message || "Failed to sign in. Please try again.");
+        } else {
+            console.log(`${data?.user?.id} signed in successfully!`);
+            router.push("/landing");
         }
     };
 
     const handleSignIn = async () => {
-        await signIn(username, password);
+        await signIn(email, password);
     };
 
     return (
@@ -46,14 +43,14 @@ export default function SignIn() {
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={{gap: 6, marginBottom: 24}}>
                         <TextInputField
-                            label="Username (Email)"
+                            label="Email"
                             placeholder="ex: johndoe123@example.com"
-                            value={username}
+                            value={email}
                             autoCapitalize="none"
-                            autoComplete="username"
+                            autoComplete="email"
                             importantForAutofill="yes"
-                            textContentType="username"
-                            onChangeText={setUsername}
+                            textContentType="emailAddress"
+                            onChangeText={setEmail}
                         />
                         <TextInputField
                             label="Password"
