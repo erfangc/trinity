@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flexGrow: 1,
-        justifyContent: "flex-end", // Ensures UI component alignment
+        justifyContent: "flex-end",
     },
     backButton: {
         position: "absolute",

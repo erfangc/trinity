@@ -16,6 +16,7 @@ export default function SignUp() {
     const [password, setPassword] = useState("");
 
     const handleCreateAccount = async () => {
+
         if (!email || !password || !firstName || !lastName) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
@@ -42,35 +43,43 @@ export default function SignUp() {
             if (error) {
                 Alert.alert("Error", error.message || "Failed to link account.");
                 return;
+            } else {
+                Alert.alert("Success", "Account successfully linked and updated!");
+                setTimeout(() => router.push("/landing"));
             }
 
-            Alert.alert("Success", "Account successfully linked and updated!");
-            router.push("/landing");
         } else {
-            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                email: email,
+            const { data, error } = await supabase.auth.signUp({
+                email,
                 password,
             });
 
-            if (signUpError) throw signUpError;
-
-            id = signUpData.user?.id;
-            Alert.alert("Success", "Account created successfully! Please confirm your email to sign in.");
-            router.push("/sign-in");
+            console.log(JSON.stringify(data), JSON.stringify(error));
+            if (error) {
+                Alert.alert("Error", error.message || "Failed to create account.");
+            } else {
+                id = data?.user?.id;
+                Alert.alert("Success", "Account created successfully! Please confirm your email to sign in.");
+                setTimeout(() => router.push("/sign-in"));
+            }
         }
 
         // Call the edge function to insert additional user information
-        const edgeFunctionResponse = await supabase.functions.invoke("insert_user_metadata", {
+        console.log(`Calling edge function with id: ${id} and name: ${firstName} ${lastName}`);
+        const {data, error} = await supabase.functions.invoke("insert_user_metadata", {
+            method: "POST",
             body: {
                 id,
                 first_name: firstName,
                 last_name: lastName,
-                primary_church_id: null, // Or pass this value if available
+                primary_church_id: null,
             },
         });
+        console.log(`Edge function response: ${data}`);
 
-        if (edgeFunctionResponse.error) {
-            Alert.alert("Error", edgeFunctionResponse.error.message || "Failed to insert additional user info.");
+        if (error) {
+            console.error(JSON.stringify(data), JSON.stringify(error));
+            Alert.alert("Error", error.message || "Failed to insert additional user info.");
             return;
         }
 

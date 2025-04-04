@@ -14,6 +14,7 @@ export const TextInputField = forwardRef<TextInput, TextInputFieldProps>(
                     ref={ref}
                     placeholderTextColor={'#B0B0B0'}
                     style={[styles.textInput, style]}
+                    returnKeyType='done'
                     {...props}
                 />
             </View>

@@ -2,7 +2,6 @@ import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View}
 import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
 import React, {useEffect, useState} from "react";
-import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
 import {NotificationIcon} from "@/components/NotificationIcon";
 import {PrayerIntention} from "@/models";
@@ -31,7 +30,7 @@ export default function LandingScreen() {
 
     useEffect(() => {
         if (user && !user.is_anonymous) {
-            return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
+            // return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
         }
     }, [user]);
 
