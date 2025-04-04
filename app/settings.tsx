@@ -13,7 +13,7 @@ export default function Inbox() {
 
     const router = useRouter();
     const [user, setUser] = useState<User>();
-    const [additionaluseIfo, setAdditionaluseIfo] = useState<AdditionalUserInfo>();
+    const [additionalUserInfo, setAdditionalUserInfo] = useState<AdditionalUserInfo>();
 
     useEffect(() => {
         supabase
@@ -53,7 +53,7 @@ export default function Inbox() {
                 console.error("Error fetching additional user info: ", error);
                 Alert.alert("Error", "There was an issue fetching additional user information: " + error.message);
             } else {
-                setAdditionaluseIfo(data);
+                setAdditionalUserInfo(data);
             }
         } catch (err) {
             console.error("Unexpected error fetching additional user info: ", err);
@@ -78,17 +78,24 @@ export default function Inbox() {
     };
 
     const updateFirstName = async (firstName: string) => {
-        if (!additionaluseIfo) {
+        if (!additionalUserInfo) {
             return;
         }
-        setAdditionaluseIfo({...additionaluseIfo, first_name: firstName});
+        setAdditionalUserInfo({...additionalUserInfo, first_name: firstName});
+    }
+
+    const updateLastName = async (lastName: string) => {
+        if (!additionalUserInfo) {
+            return;
+        }
+        setAdditionalUserInfo({...additionalUserInfo, last_name: lastName});
     }
 
     const handleSave = async () => {
-        if (!additionaluseIfo) {
+        if (!additionalUserInfo) {
             return;
         }
-        await updateAdditionalUserInfo(additionaluseIfo);
+        await updateAdditionalUserInfo(additionalUserInfo);
     }
 
     return (
@@ -105,12 +112,13 @@ export default function Inbox() {
             {user && (
                 <View style={styles.userInfo}>
                     <Text style={styles.userInfoText}><Text style={styles.label}>Email: </Text>{user.email || "No email"}</Text>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>UID: </Text>{user.id}</Text>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>Full Name: </Text>{additionaluseIfo?.first_name}</Text>
+                    <Text style={styles.userInfoText}><Text style={styles.label}>User ID: </Text>{user.id}</Text>
+                    <View style={{marginTop: 16}}>
+                        <TextInputField label={'First Name'} value={additionalUserInfo?.first_name ?? ''} onChangeText={updateFirstName}/>
+                    </View>
+                    <TextInputField label={'Last Name'} value={additionalUserInfo?.last_name ?? ''} onChangeText={updateLastName}/>
                 </View>
             )}
-
-            <TextInputField label={'First Name'} value={additionaluseIfo?.first_name ?? ''} onChangeText={updateFirstName}/>
 
             <TouchableOpacity style={styles.deactivateButton} onPress={handleDeactivateAccount}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Deactivate Account</Text>
@@ -153,5 +161,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontWeight: "bold",
+        fontSize: 12
     },
 });

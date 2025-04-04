@@ -7,89 +7,73 @@ import CtaButton from "@/components/CtaButton";
 import {supabase} from "@/supabase";
 
 export default function SignUp() {
+
     const router = useRouter();
 
-    // State for form input fields
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [parish, setParish] = useState("");
 
     const handleCreateAccount = async () => {
-        if (!username || !password || !firstName || !lastName) {
+        if (!email || !password || !firstName || !lastName) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
         }
 
-        try {
-            // Get the current session (check if the user is signed in anonymously)
-            const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
-            if (sessionError) throw sessionError;
-
-            const anonymousUser = sessionData?.session?.user;
-            const isAnonymous = anonymousUser?.email === null;
-
-            if (isAnonymous) {
-                // Handle anonymous linking here
-                console.log("Anonymous user detected. Linking the account with the new credentials...");
-
-                // Convert the anonymous user to a permanent account
-                const { data, error } = await supabase.auth.updateUser({
-                    email: username,
-                    password,
-                });
-
-                if (error) throw error;
-
-                // Insert the user details into the 'additional_user_info' table
-                const additionalInfoInsertion = await supabase
-                    .from("additional_user_info")
-                    .insert({
-                        user_id: data.user?.id,
-                        first_name: firstName,
-                        last_name: lastName,
-                        parish,
-                        created_at: new Date().toISOString(),
-                    });
-
-                if (additionalInfoInsertion.error) throw additionalInfoInsertion.error;
-
-                Alert.alert("Success", "Account successfully linked and updated!");
-                router.push("/landing");
-            } else {
-                // Handle new user sign-up
-                console.log("No anonymous user detected. Creating a new account...");
-
-                const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-                    email: username,
-                    password,
-                });
-
-                if (signUpError) throw signUpError;
-
-                const userId = signUpData.user?.id;
-
-                console.log(userId);
-                // Insert the user details into the 'additional_user_info' table
-                const infoInsertion = await supabase
-                    .from("additional_user_info")
-                    .insert({
-                        id: userId,
-                        first_name: firstName,
-                        last_name: lastName,
-                        created_at: new Date().toISOString(),
-                    });
-
-                if (infoInsertion.error) throw infoInsertion.error;
-
-                Alert.alert("Success", "Account created successfully!");
-                router.push("/landing");
-            }
-        } catch (error: any) {
-            console.error("Error creating account: ", error);
-            Alert.alert("Error", error.message || "Failed to create account.");
+        // Get the current session (check if the user is signed in anonymously)
+        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) {
+            Alert.alert("Error", sessionError.message || "Failed to get session.");
+            return;
         }
+
+        const anonymousUser = sessionData?.session?.user;
+        const isAnonymous = anonymousUser?.is_anonymous;
+        let id = anonymousUser?.id;
+
+        if (isAnonymous) {
+            // Convert the anonymous user to a permanent account
+            const { data, error } = await supabase.auth.updateUser({
+                email,
+                password,
+            });
+
+            if (error) {
+                Alert.alert("Error", error.message || "Failed to link account.");
+                return;
+            }
+
+            Alert.alert("Success", "Account successfully linked and updated!");
+            router.push("/landing");
+        } else {
+            const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+                email: email,
+                password,
+            });
+
+            if (signUpError) throw signUpError;
+
+            id = signUpData.user?.id;
+            Alert.alert("Success", "Account created successfully! Please confirm your email to sign in.");
+            router.push("/sign-in");
+        }
+
+        // Call the edge function to insert additional user information
+        const edgeFunctionResponse = await supabase.functions.invoke("insert_user_metadata", {
+            body: {
+                id,
+                first_name: firstName,
+                last_name: lastName,
+                primary_church_id: null, // Or pass this value if available
+            },
+        });
+
+        if (edgeFunctionResponse.error) {
+            Alert.alert("Error", edgeFunctionResponse.error.message || "Failed to insert additional user info.");
+            return;
+        }
+
     };
 
     return (
@@ -116,14 +100,14 @@ export default function SignUp() {
                             onChangeText={setLastName}
                         />
                         <TextInputField
-                            label="Username (Email)"
+                            label="Email"
                             placeholder="ex: johndoe123@example.com"
-                            value={username}
+                            value={email}
                             autoCapitalize="none"
-                            autoComplete="username"
+                            autoComplete="email"
                             importantForAutofill="yes"
-                            textContentType="username"
-                            onChangeText={setUsername}
+                            textContentType="emailAddress"
+                            onChangeText={setEmail}
                         />
                         <TextInputField
                             label="Password"
@@ -137,9 +121,7 @@ export default function SignUp() {
                         />
                         <TextInputField
                             label="Church"
-                            value={parish}
                             placeholder="ex: St Francis of Assisi"
-                            onChangeText={setParish}
                         />
                     </View>
 

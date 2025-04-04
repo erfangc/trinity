@@ -11,7 +11,7 @@ const supabase = createClient(
 Deno.serve(async (req) => {
   try {
     // Parse incoming request JSON body
-    const { first_name, last_name, primary_church_id } = await req.json();
+    const { id, first_name, last_name, primary_church_id } = await req.json();
 
     // Validate the input
     if (!first_name || !last_name) {
@@ -26,9 +26,10 @@ Deno.serve(async (req) => {
         .from("additional_user_info")
         .insert([
           {
-            first_name: first_name,
-            last_name: last_name,
-            primary_church_id: primary_church_id, // Optional field, can be null
+            id,
+            first_name,
+            last_name,
+            primary_church_id, // Optional field, can be null
           },
         ]);
 
