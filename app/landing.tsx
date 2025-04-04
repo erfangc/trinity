@@ -1,15 +1,15 @@
 import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
-import {signOut} from "firebase/auth";
 import React, {useEffect, useState} from "react";
 import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
-import {auth} from "@/firebaseConfig";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
 import {NotificationIcon} from "@/components/NotificationIcon";
 import {PrayerIntention} from "@/models";
 import {SettingsIcon} from "@/components/SettingsIcon";
-import {PlayPauseIcon} from "@/components/PlayPauseIcon"; // Expo supports this out of the box
+import {PlayPauseIcon} from "@/components/PlayPauseIcon";
+import {supabase} from "@/supabase";
+import {User} from "@supabase/auth-js"; // Expo supports this out of the box
 
 /**
  * A functional component that represents the main landing screen of the application.
@@ -23,25 +23,27 @@ export default function LandingScreen() {
     const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
     const router = useRouter();
 
-    const currentUser = auth.currentUser;
+    const [user, setUser] = useState<User>();
 
     useEffect(() => {
-        if (currentUser && !currentUser.isAnonymous) {
+        supabase.auth.getSession().then(({data}) => setUser(data?.session?.user ?? undefined));
+    }, []);
+
+    useEffect(() => {
+        if (user && !user.is_anonymous) {
             return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
         }
-    }, [currentUser]);
+    }, [user]);
 
     const handleSignOut = () => {
-        signOut(auth)
-            .then(() => router.push('/'))
-            .catch(err => console.log(err));
+        supabase.auth.signOut().then(() => router.push('/'));
     };
 
     const navigateToPrayerIntention = (prayerIntention: PrayerIntention) => {
         router.push(`/prayer-intentions/${prayerIntention.id}`);
     };
 
-    const emptyStateMessage = currentUser?.isAnonymous
+    const emptyStateMessage = user?.is_anonymous
         ? "Other people's prayer intentions will appear here. You can only pray for them if you sign up."
         : "There are currently no prayer intentions available. Please check back later!";
 

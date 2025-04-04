@@ -10,8 +10,10 @@ const supabase = createClient(
 
 Deno.serve(async (req) => {
   try {
+    console.log(`Received request: ${req.url}`);
     // Parse incoming request JSON body
     const { id, first_name, last_name, primary_church_id } = await req.json();
+    console.log(`Inserting user metadata for user ${id}, ${first_name} ${last_name}`);
 
     // Validate the input
     if (!first_name || !last_name) {
