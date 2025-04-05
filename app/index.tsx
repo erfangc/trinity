@@ -1,46 +1,41 @@
-import {ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
+import {Alert, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
 import CtaButton from "@/components/CtaButton";
 import {SignInButton} from "@/components/SignInButton";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {SignUpButton} from "@/components/SignUpButton";
 import {OrSeparator} from "@/components/OrSeparator";
-import {signInAnonymously} from "@firebase/auth";
-import {auth, db} from "@/firebaseConfig";
-import {doc, setDoc} from "firebase/firestore";
 import {PlayPauseIcon} from "@/components/PlayPauseIcon";
+import {useUser} from "@/context/UserContext";
+import {supabase} from "@/supabase";
 
 export default function HomeScreen() {
 
-    const [name, setName] = useState<string>('');
+    const [firstName, setFirstName] = useState<string>('');
     const router = useRouter();
 
-    useEffect(() => {
-        AsyncStorage
-            .getItem('name')
-            .then(value => setName(value || ''))
-            .catch(err => console.log(err));
-    }, []);
+    const user = useUser();
 
     useEffect(() => {
-        if (name !== undefined && name !== null) {
-            AsyncStorage.setItem('name', name);
+        if (user) {
+            router.push('/landing');
         }
-    }, [name]);
+    }, [user]);
 
-    const handleConfirm = async () => {
+    const handleSignUpAnonymously = async () => {
+        const {error} = await supabase.auth.signInAnonymously(
+            {
+                options: {
+                    data: {first_name: firstName}
+                }
+            }
+        );
 
-        const {user} = await signInAnonymously(auth);
-        console.log(`Signed in anonymously as ${user?.uid}`);
-
-        // Write the name to Firestore keyed by user.uid
-        await setDoc(doc(db, "users", user.uid), {
-            name: name,
-        });
-
-        console.log(`Name "${name}" saved to Firestore for user ${user.uid}`);
-        router.push('/landing');
+        if (error) {
+            Alert.alert("Error", error.message || "Failed to sign in. Please try again.");
+        } else {
+            router.push('/landing');
+        }
     }
 
     return (
@@ -61,18 +56,18 @@ export default function HomeScreen() {
                         <OrSeparator/>
 
                         {/* Input Field */}
-                        <Text style={styles.label}>Your Name</Text>
+                        <Text style={styles.label}>Your First Name</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="Enter your name"
                             placeholderTextColor="#D9D9D9"
-                            value={name}
-                            onChangeText={(text) => setName(text)}
+                            value={firstName}
+                            onChangeText={(text) => setFirstName(text)}
                         />
 
                         {/* Confirm Button */}
                         <View style={styles.confirmButton}>
-                            <CtaButton title="CONFIRM" onPress={handleConfirm}/>
+                            <CtaButton title="CONFIRM" onPress={handleSignUpAnonymously}/>
                         </View>
                     </View>
                 </View>

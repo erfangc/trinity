@@ -8,7 +8,7 @@ import {PrayerIntention} from "@/models";
 import {SettingsIcon} from "@/components/SettingsIcon";
 import {PlayPauseIcon} from "@/components/PlayPauseIcon";
 import {supabase} from "@/supabase";
-import {User} from "@supabase/auth-js"; // Expo supports this out of the box
+import {User} from "@supabase/auth-js";
 
 /**
  * A functional component that represents the main landing screen of the application.

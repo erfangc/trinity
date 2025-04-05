@@ -1,4 +1,4 @@
-import {createContext, ReactNode, useEffect, useState} from "react";
+import React, {createContext, ReactNode, useEffect, useState} from "react";
 import {User} from "@supabase/auth-js";
 import {supabase} from "@/supabase";
 import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
@@ -39,4 +39,9 @@ export const UserContextProvider = ({children}: { children: ReactNode }) => {
             {children}
         </UserContext.Provider>
     );
+};
+
+export const useUser = () => {
+    const userContextValue = React.useContext(UserContext);
+    return userContextValue.user;
 };

@@ -1,10 +1,11 @@
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
 import {TextInputField} from "@/components/TextInputField";
 import CtaButton from "@/components/CtaButton";
 import {supabase} from "@/supabase";
+import {useUser} from "@/context/UserContext";
 
 export default function SignUp() {
 
@@ -31,7 +32,7 @@ export default function SignUp() {
 
         const anonymousUser = sessionData?.session?.user;
         const isAnonymous = anonymousUser?.is_anonymous;
-        let id = anonymousUser?.id;
+
 
         if (isAnonymous) {
             // Convert the anonymous user to a permanent account
@@ -60,7 +61,6 @@ export default function SignUp() {
                 },
             });
 
-            console.log(JSON.stringify(data), JSON.stringify(error));
             if (error) {
                 Alert.alert("Error", error.message || "Failed to create account.");
             } else {
