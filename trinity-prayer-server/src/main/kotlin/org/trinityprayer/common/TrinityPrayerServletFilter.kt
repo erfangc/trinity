@@ -32,6 +32,12 @@ class TrinityPrayerServletFilter(
                 log.info("Failed to validate token message=${ex.message}", ex)
                 return
             }
+        } else if (allowWithoutAccessToken(request)) {
+            log.info("Allowing call to ${request.requestURI} without token")
+        } else {
+            response.status = HttpServletResponse.SC_UNAUTHORIZED
+            log.info("No token found for ${request.method} ${request.requestURI}")
+            return
         }
 
         try {
@@ -40,6 +46,12 @@ class TrinityPrayerServletFilter(
             userProvider.clearUser()
             log.info("Finished processing ${request.method} ${request.requestURI}")
         }
+    }
+
+    private fun allowWithoutAccessToken(request: HttpServletRequest): Boolean {
+        val isGetChurches = request.requestURI.startsWith("/api/v1/churches") && request.method == "GET"
+        val isGetApiDocs = request.requestURI.startsWith("/v3/api-docs") && request.method == "GET"
+        return isGetChurches || isGetApiDocs
     }
 
 }

@@ -1,6 +1,6 @@
 import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
 import {useFonts} from 'expo-font';
-import {Stack, useRouter} from 'expo-router';
+import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {ActivityIndicator, StatusBar, StyleSheet, View} from 'react-native';
 import {useEffect, useRef, useState} from 'react';
@@ -9,8 +9,8 @@ import * as Notifications from 'expo-notifications';
 import {useColorScheme} from '@/hooks/useColorScheme';
 import {savePushToken} from "@/savePushToken";
 import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
-import {GregorianChantContextProvider} from "@/app/GregorianChantContext";
-import {supabase} from "@/supabase";
+import {GregorianChantContextProvider} from "@/context/GregorianChantContext";
+import { UserContextProvider } from '@/context/UserContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,25 +36,6 @@ export default function RootLayout() {
             SplashScreen.hideAsync();
         }
     }, [loaded]);
-
-    const router = useRouter();
-
-    useEffect(() => {
-        const {data} = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN') {
-                const token = await registerForPushNotificationsAsync();
-                if (token) {
-                    await savePushToken(token);
-                }
-                console.log('Signed in', session);
-                router.push('/landing');
-            } else if (event === 'SIGNED_OUT') {
-                console.log('Signed out');
-                router.push('/sign-in');
-            }
-        });
-        return () => data.subscription.unsubscribe();
-    }, []);
 
     const [, setNotification] = useState<Notifications.Notification | null>(null);
     const notificationListener = useRef<any>();
@@ -97,22 +78,24 @@ export default function RootLayout() {
 
 
     return (
-        <GregorianChantContextProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <StatusBar barStyle="light-content"/>
-                <Stack screenOptions={{headerShown: false}}>
-                    <Stack.Screen name="index"/>
-                    <Stack.Screen name="landing"/>
-                    <Stack.Screen name="sign-up"/>
-                    <Stack.Screen name="sign-in"/>
-                    <Stack.Screen name="inbox"/>
-                    <Stack.Screen name="settings"/>
-                    <Stack.Screen name="create-prayer-intention"/>
-                    <Stack.Screen name="prayer-intentions/:id"/>
-                    <Stack.Screen name="+not-found"/>
-                </Stack>
-            </ThemeProvider>
-        </GregorianChantContextProvider>
+        <UserContextProvider>
+            <GregorianChantContextProvider>
+                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                    <StatusBar barStyle="light-content"/>
+                    <Stack screenOptions={{headerShown: false}}>
+                        <Stack.Screen name="index"/>
+                        <Stack.Screen name="landing"/>
+                        <Stack.Screen name="sign-up"/>
+                        <Stack.Screen name="sign-in"/>
+                        <Stack.Screen name="inbox"/>
+                        <Stack.Screen name="settings"/>
+                        <Stack.Screen name="create-prayer-intention"/>
+                        <Stack.Screen name="prayer-intentions/:id"/>
+                        <Stack.Screen name="+not-found"/>
+                    </Stack>
+                </ThemeProvider>
+            </GregorianChantContextProvider>
+        </UserContextProvider>
     );
 }
 
