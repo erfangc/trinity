@@ -2,70 +2,73 @@ import React, {useState} from "react";
 import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
-import {createUserWithEmailAndPassword, EmailAuthProvider, linkWithCredential,} from "firebase/auth";
-import {doc, getDoc, setDoc} from "firebase/firestore";
-import {auth, db} from "@/firebaseConfig";
 import {TextInputField} from "@/components/TextInputField";
 import CtaButton from "@/components/CtaButton";
+import {supabase} from "@/supabase";
 
 export default function SignUp() {
+
     const router = useRouter();
 
-    // State for form input fields
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [parish, setParish] = useState("");
 
     const handleCreateAccount = async () => {
-        if (!username || !password || !firstName) {
+
+        if (!email || !password || !firstName || !lastName) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
         }
 
-        try {
-            const currentUser = auth.currentUser;
-
-            if (currentUser?.isAnonymous) {
-                const userDocRef = doc(db, "users", currentUser?.uid);
-                const userDoc = await getDoc(userDocRef);
-                const existingName = userDoc.exists() ? userDoc.data().name : "";
-                console.log("Anonymous user detected. Attempting to link account...");
-
-                const credential = EmailAuthProvider.credential(username, password);
-                const linkedUser = await linkWithCredential(currentUser, credential);
-                console.log("Anonymous account successfully linked:", linkedUser.user.uid);
-
-                await setDoc(userDocRef, {
-                    firstName,
-                    lastName,
-                    parish,
-                    username,
-                    name: existingName, // Preserve name
-                    createdAt: new Date(),
-                });
-
-                Alert.alert("Success", "Account created successfully!");
-                router.push("/landing");
-            } else {
-                console.log("No anonymous user, creating a new account...");
-                const userCredential = await createUserWithEmailAndPassword(auth, username, password);
-                await setDoc(doc(db, "users", userCredential.user.uid), {
-                    firstName,
-                    lastName,
-                    parish,
-                    username,
-                    createdAt: new Date(),
-                });
-
-                Alert.alert("Success", "Account created successfully!");
-                router.push("/landing");
-            }
-        } catch (error: any) {
-            console.error("Error creating account: ", error);
-            Alert.alert("Error", error.message || "Failed to create account.");
+        // Get the current session (check if the user is signed in anonymously)
+        const {data: sessionData, error: sessionError} = await supabase.auth.getSession();
+        if (sessionError) {
+            Alert.alert("Error", sessionError.message || "Failed to get session.");
+            return;
         }
+
+        const anonymousUser = sessionData?.session?.user;
+        const isAnonymous = anonymousUser?.is_anonymous;
+        let id = anonymousUser?.id;
+
+        if (isAnonymous) {
+            // Convert the anonymous user to a permanent account
+            const {data, error} = await supabase.auth.updateUser({
+                email,
+                password,
+            });
+
+            if (error) {
+                Alert.alert("Error", error.message || "Failed to link account.");
+                return;
+            } else {
+                Alert.alert("Success", "Account successfully linked and updated!");
+                setTimeout(() => router.push("/landing"));
+            }
+
+        } else {
+            const {data, error} = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                    }
+                },
+            });
+
+            console.log(JSON.stringify(data), JSON.stringify(error));
+            if (error) {
+                Alert.alert("Error", error.message || "Failed to create account.");
+            } else {
+                Alert.alert("Success", "Account created successfully! Please confirm your email to sign in.");
+                setTimeout(() => router.push("/sign-in"));
+            }
+        }
+
     };
 
     return (
@@ -92,14 +95,14 @@ export default function SignUp() {
                             onChangeText={setLastName}
                         />
                         <TextInputField
-                            label="Username (Email)"
+                            label="Email"
                             placeholder="ex: johndoe123@example.com"
-                            value={username}
+                            value={email}
                             autoCapitalize="none"
-                            autoComplete="username"
+                            autoComplete="email"
                             importantForAutofill="yes"
-                            textContentType="username"
-                            onChangeText={setUsername}
+                            textContentType="emailAddress"
+                            onChangeText={setEmail}
                         />
                         <TextInputField
                             label="Password"
@@ -113,9 +116,7 @@ export default function SignUp() {
                         />
                         <TextInputField
                             label="Church"
-                            value={parish}
                             placeholder="ex: St Francis of Assisi"
-                            onChangeText={setParish}
                         />
                     </View>
 

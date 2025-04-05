@@ -1,51 +1,7 @@
-import {
-    collection,
-    doc,
-    getDoc,
-    limit,
-    onSnapshot,
-    orderBy,
-    query,
-    Unsubscribe,
-    updateDoc,
-    where
-} from "firebase/firestore";
+import {doc, getDoc, updateDoc} from "firebase/firestore";
 import {auth, db} from "./firebaseConfig";
 import {PrayerIntention} from "@/models";
 import getUser from "@/getUser";
-
-export const fetchPrayIntentions = (N: number, onData: (prayerIntentions: PrayerIntention[]) => void): Unsubscribe => {
-    const currentUser = auth.currentUser;
-
-    if (!currentUser) {
-        throw new Error("User not authenticated");
-    }
-
-    const q = query(
-        collection(db, "prayerIntentions"),
-        where("answered", "==", false),
-        where("userId", "!=", currentUser.uid), // Exclude intentions created by the current user
-        orderBy("creationDate", "asc"),
-        limit(N)
-    );
-
-    return onSnapshot(q, {
-        next: snapshot => {
-            const prayerIntentions = snapshot.docs.map(doc => {
-                return {
-                    id: doc.id,
-                    ...doc.data(),
-                    creationDate: doc.data().creationDate.toDate(),
-                    answeredTime: doc.data().answeredTime?.toDate(),
-                } as PrayerIntention;
-            });
-            onData(prayerIntentions);
-        },
-        error: error => {
-            console.error("Error fetching prayer intentions:", error);
-        }
-    });
-};
 
 export const fetchPrayIntentionById = async (id: string): Promise<PrayerIntention | null> => {
     try {

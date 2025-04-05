@@ -1,25 +1,20 @@
-import {collection, addDoc, Timestamp} from "firebase/firestore";
-import {auth, db} from "@/firebaseConfig";
-import {Alert} from "react-native"; // Your Firebase setup file
+import {Alert} from "react-native";
+import {supabase} from "@/supabase"; // Your Firebase setup file
 
 export const addPrayIntention = async (
-    prayerIntention: { description: string, from: string }
+    prayerIntention: { intention_text: string }
 ) => {
-    const currentUser = auth.currentUser;
-    if (!currentUser) {
-        Alert.alert("You must be logged in to add a prayer intention");
-        return;
-    }
-    try {
-        await addDoc(collection(db, "prayerIntentions"), {
-            description: prayerIntention.description,
-            from: prayerIntention.from,
-            userId: currentUser.uid,
-            answered: false,
-            read: false,
-            creationDate: Timestamp.now(),
-        });
-    } catch (error) {
-        console.error("Error adding document: ", error);
+    const {data, error} = await supabase.auth.getSession();
+    if (error) {
+        Alert.alert("Error logging in: ", error.message);
+    } else {
+        const userId = data.session?.user?.id;
+        return supabase
+            .from('prayer_intentions')
+            .insert([{
+                creator_id: userId,
+                intention_text: prayerIntention.intention_text,
+            }]);
+
     }
 };
