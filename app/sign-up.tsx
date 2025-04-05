@@ -23,7 +23,7 @@ export default function SignUp() {
         }
 
         // Get the current session (check if the user is signed in anonymously)
-        const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+        const {data: sessionData, error: sessionError} = await supabase.auth.getSession();
         if (sessionError) {
             Alert.alert("Error", sessionError.message || "Failed to get session.");
             return;
@@ -35,7 +35,7 @@ export default function SignUp() {
 
         if (isAnonymous) {
             // Convert the anonymous user to a permanent account
-            const { data, error } = await supabase.auth.updateUser({
+            const {data, error} = await supabase.auth.updateUser({
                 email,
                 password,
             });
@@ -49,38 +49,24 @@ export default function SignUp() {
             }
 
         } else {
-            const { data, error } = await supabase.auth.signUp({
+            const {data, error} = await supabase.auth.signUp({
                 email,
                 password,
+                options: {
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                    }
+                },
             });
 
             console.log(JSON.stringify(data), JSON.stringify(error));
             if (error) {
                 Alert.alert("Error", error.message || "Failed to create account.");
             } else {
-                id = data?.user?.id;
                 Alert.alert("Success", "Account created successfully! Please confirm your email to sign in.");
                 setTimeout(() => router.push("/sign-in"));
             }
-        }
-
-        // Call the edge function to insert additional user information
-        console.log(`Calling edge function with id: ${id} and name: ${firstName} ${lastName}`);
-        const {data, error} = await supabase.functions.invoke("insert_user_metadata", {
-            method: "POST",
-            body: {
-                id,
-                first_name: firstName,
-                last_name: lastName,
-                primary_church_id: null,
-            },
-        });
-        console.log(`Edge function response: ${data}`);
-
-        if (error) {
-            console.error(JSON.stringify(data), JSON.stringify(error));
-            Alert.alert("Error", error.message || "Failed to insert additional user info.");
-            return;
         }
 
     };

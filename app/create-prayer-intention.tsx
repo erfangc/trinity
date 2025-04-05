@@ -75,7 +75,7 @@ export function CreatePrayerIntentionScreen() {
             </KeyboardAvoidingView>
         </View>
     );
-};
+}
 
 // Styles
 const styles = StyleSheet.create({
