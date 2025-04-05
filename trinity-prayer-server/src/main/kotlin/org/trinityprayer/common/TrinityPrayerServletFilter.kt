@@ -1,4 +1,4 @@
-package org.trinityprayer
+package org.trinityprayer.common
 
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest

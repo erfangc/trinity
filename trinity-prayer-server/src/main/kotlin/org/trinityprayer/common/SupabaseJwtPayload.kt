@@ -1,4 +1,4 @@
-package org.trinityprayer
+package org.trinityprayer.common
 
 import com.fasterxml.jackson.annotation.JsonProperty
 
@@ -58,6 +58,9 @@ data class UserMetadata(
     @JsonProperty("email")
     val email: String? = null,
 
+    @JsonProperty("church_id")
+    val churchId: Long? = null,
+
     @JsonProperty("email_verified")
     val emailVerified: Boolean? = null,
 
@@ -69,6 +72,8 @@ data class UserMetadata(
 
     @JsonProperty("phone_verified")
     val phoneVerified: Boolean? = null,
+
+    val expoPushTokens: List<String>? = null,
 
     @JsonProperty("sub")
     val sub: String? = null
