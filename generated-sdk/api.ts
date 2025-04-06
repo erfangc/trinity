@@ -148,6 +148,12 @@ export interface PrayerIntentionDenormalized {
     'createdAt': string;
     /**
      * 
+     * @type {string}
+     * @memberof PrayerIntentionDenormalized
+     */
+    'creatorId'?: string;
+    /**
+     * 
      * @type {UserSummary}
      * @memberof PrayerIntentionDenormalized
      */
@@ -158,6 +164,12 @@ export interface PrayerIntentionDenormalized {
      * @memberof PrayerIntentionDenormalized
      */
     'intentionText'?: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof PrayerIntentionDenormalized
+     */
+    'answererId'?: string;
     /**
      * 
      * @type {UserSummary}
@@ -290,6 +302,35 @@ export const TrinityPrayerControllerApiAxiosParamCreator = function (configurati
          */
         getChurches: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/churches`;
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMyPrayerIntentions: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            const localVarPath = `/api/v1/my-prayer-intentions`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
             let baseOptions;
@@ -457,6 +498,17 @@ export const TrinityPrayerControllerApiFp = function(configuration?: Configurati
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getMyPrayerIntentions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<PrayerIntention>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getMyPrayerIntentions(options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TrinityPrayerControllerApi.getMyPrayerIntentions']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
          * @param {number} prayerIntentionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -472,7 +524,7 @@ export const TrinityPrayerControllerApiFp = function(configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getPrayerIntentions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<PrayerIntention>>> {
+        async getPrayerIntentions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<PrayerIntentionDenormalized>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getPrayerIntentions(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TrinityPrayerControllerApi.getPrayerIntentions']?.[localVarOperationServerIndex]?.url;
@@ -528,6 +580,14 @@ export const TrinityPrayerControllerApiFactory = function (configuration?: Confi
         },
         /**
          * 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getMyPrayerIntentions(options?: RawAxiosRequestConfig): AxiosPromise<Array<PrayerIntention>> {
+            return localVarFp.getMyPrayerIntentions(options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
          * @param {number} prayerIntentionId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
@@ -540,7 +600,7 @@ export const TrinityPrayerControllerApiFactory = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getPrayerIntentions(options?: RawAxiosRequestConfig): AxiosPromise<Array<PrayerIntention>> {
+        getPrayerIntentions(options?: RawAxiosRequestConfig): AxiosPromise<Array<PrayerIntentionDenormalized>> {
             return localVarFp.getPrayerIntentions(options).then((request) => request(axios, basePath));
         },
         /**
@@ -592,6 +652,16 @@ export class TrinityPrayerControllerApi extends BaseAPI {
      */
     public getChurches(options?: RawAxiosRequestConfig) {
         return TrinityPrayerControllerApiFp(this.configuration).getChurches(options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TrinityPrayerControllerApi
+     */
+    public getMyPrayerIntentions(options?: RawAxiosRequestConfig) {
+        return TrinityPrayerControllerApiFp(this.configuration).getMyPrayerIntentions(options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

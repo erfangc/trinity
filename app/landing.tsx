@@ -8,7 +8,8 @@ import {SettingsIcon} from "@/components/SettingsIcon";
 import {PlayPauseIcon} from "@/components/PlayPauseIcon";
 import {supabase} from "@/supabase";
 import {User} from "@supabase/auth-js";
-import {PrayerIntention} from "@/generated-sdk";
+import {PrayerIntentionDenormalized} from "@/generated-sdk";
+import {api} from "@/sdk";
 
 /**
  * A functional component that represents the main landing screen of the application.
@@ -19,7 +20,7 @@ import {PrayerIntention} from "@/generated-sdk";
  */
 export default function LandingScreen() {
 
-    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
+    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntentionDenormalized[]>([]);
     const router = useRouter();
 
     const [user, setUser] = useState<User>();
@@ -30,7 +31,7 @@ export default function LandingScreen() {
 
     useEffect(() => {
         if (user && !user.is_anonymous) {
-            // return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
+            api.getPrayerIntentions().then(resp => setPrayerIntentions(resp.data));
         }
     }, [user]);
 
@@ -38,7 +39,7 @@ export default function LandingScreen() {
         supabase.auth.signOut().then(() => router.push('/'));
     };
 
-    const navigateToPrayerIntention = (prayerIntention: PrayerIntention) => {
+    const navigateToPrayerIntention = (prayerIntention: PrayerIntentionDenormalized) => {
         router.push(`/prayer-intentions/${prayerIntention.id}`);
     };
 

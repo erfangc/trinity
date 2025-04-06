@@ -31,8 +31,10 @@ data class Church(
 data class PrayerIntentionDenormalized(
     val id: Long? = null,
     val createdAt: Instant = Instant.now(),
+    val creatorId: String? = null,
     val creator: UserSummary? = null,
     val intentionText: String? = null,
+    val answererId: String? = null,
     val answerer: UserSummary? = null,
     val read: Boolean = false,
     val answeredAt: Instant? = null,

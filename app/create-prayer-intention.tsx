@@ -13,6 +13,7 @@ import {
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
+import {api} from "@/sdk";
 
 export function CreatePrayerIntentionScreen() {
 
@@ -25,7 +26,7 @@ export function CreatePrayerIntentionScreen() {
             return;
         }
 
-        // TODO
+        await api.createPrayerIntention({intentText});
         Alert.alert(
             "Submitted",
             "Your prayer intention has been submitted. We will notify you when a fellow member prays for you."

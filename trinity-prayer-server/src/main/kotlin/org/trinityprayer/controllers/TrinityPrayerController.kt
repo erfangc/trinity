@@ -23,8 +23,8 @@ class TrinityPrayerController(
     }
 
     @GetMapping("prayer-intentions")
-    fun getPrayerIntentions(): List<PrayerIntention> {
-        return prayerIntentionsService.getPrayerIntentions()
+    fun getPrayerIntentions(): List<PrayerIntentionDenormalized> {
+        return prayerIntentionsService.getUnansweredPrayerIntentions()
     }
 
     @GetMapping("my-prayer-intentions")
