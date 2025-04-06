@@ -4,11 +4,11 @@ import {useRouter} from "expo-router";
 import React, {useEffect, useState} from "react";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
 import {NotificationIcon} from "@/components/NotificationIcon";
-import {PrayerIntention} from "@/models";
 import {SettingsIcon} from "@/components/SettingsIcon";
 import {PlayPauseIcon} from "@/components/PlayPauseIcon";
 import {supabase} from "@/supabase";
 import {User} from "@supabase/auth-js";
+import {PrayerIntention} from "@/generated-sdk";
 
 /**
  * A functional component that represents the main landing screen of the application.
@@ -64,7 +64,7 @@ export default function LandingScreen() {
                 {prayerIntentions.map(prayerIntention => (
                     <PrayerRequestCard
                         key={prayerIntention.id}
-                        name={prayerIntention.from}
+                        name={prayerIntention.creatorId??'Anonymous'}
                         onPress={() => navigateToPrayerIntention(prayerIntention)}
                     />
                 ))}

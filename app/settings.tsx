@@ -1,102 +1,14 @@
-import React, {useEffect, useState} from "react";
-import {Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React from "react";
+import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
-import {supabase} from "@/supabase";
-import {User} from "@supabase/auth-js";
-import {Database} from "@/supabaseTypes";
 import {TextInputField} from "@/components/TextInputField";
 
-type AdditionalUserInfo = Database["public"]["Tables"]["additional_user_info"]["Row"];
 
 export default function Inbox() {
 
     const router = useRouter();
-    const [user, setUser] = useState<User>();
-    const [additionalUserInfo, setAdditionalUserInfo] = useState<AdditionalUserInfo>();
 
-    useEffect(() => {
-        supabase
-            .auth
-            .getSession()
-            .then(({data, error}) => {
-                if (error) {
-                    console.error("Error getting session: ", error);
-                    Alert.alert("Error", "There was an issue getting your session: " + error.message);
-                } else {
-                    setUser(data?.session?.user);
-                }
-            });
-    }, []);
-
-    useEffect(() => {
-        if (user?.id) {
-            fetchAdditionalUserInfo();
-        }
-    }, [user?.id]);
-
-    const fetchAdditionalUserInfo = async () => {
-        if (user === undefined) {
-            return;
-        }
-        try {
-            console.log(
-                "Fetching additional user info for user ID: " + user.id
-            )
-            const { data, error } = await supabase
-                .from("additional_user_info") // The table name
-                .select("*") // Select all columns (customize as needed)
-                .eq("id", user.id) // Filter by the user ID
-                .single(); // Retrieve a single row (assuming 1-to-1 relation)
-
-            if (error) {
-                console.error("Error fetching additional user info: ", error);
-                Alert.alert("Error", "There was an issue fetching additional user information: " + error.message);
-            } else {
-                setAdditionalUserInfo(data);
-            }
-        } catch (err) {
-            console.error("Unexpected error fetching additional user info: ", err);
-            Alert.alert("Error", "An unexpected error occurred.");
-        }
-    };
-
-    const updateAdditionalUserInfo = async (additionalUserInfo: AdditionalUserInfo) => {
-        if (!user) {
-            return;
-        }
-        const {data, error, status, count} = await supabase.from("additional_user_info").update(additionalUserInfo).eq("id", user.id);
-        console.log(data, error, status, count);
-        if (error) {
-            Alert.alert("Error", "There was an issue updating additional user information: " + error.message);
-        }
-        fetchAdditionalUserInfo();
-    }
-
-    const handleDeactivateAccount = async () => {
-        // TODO
-    };
-
-    const updateFirstName = async (firstName: string) => {
-        if (!additionalUserInfo) {
-            return;
-        }
-        setAdditionalUserInfo({...additionalUserInfo, first_name: firstName});
-    }
-
-    const updateLastName = async (lastName: string) => {
-        if (!additionalUserInfo) {
-            return;
-        }
-        setAdditionalUserInfo({...additionalUserInfo, last_name: lastName});
-    }
-
-    const handleSave = async () => {
-        if (!additionalUserInfo) {
-            return;
-        }
-        await updateAdditionalUserInfo(additionalUserInfo);
-    }
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#221F1F"}}>
@@ -109,21 +21,19 @@ export default function Inbox() {
             </View>
 
             {/* Display User Data */}
-            {user && (
-                <View style={styles.userInfo}>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>Email: </Text>{user.email || "No email"}</Text>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>User ID: </Text>{user.id}</Text>
-                    <View style={{marginTop: 16}}>
-                        <TextInputField label={'First Name'} value={additionalUserInfo?.first_name ?? ''} onChangeText={updateFirstName}/>
-                    </View>
-                    <TextInputField label={'Last Name'} value={additionalUserInfo?.last_name ?? ''} onChangeText={updateLastName}/>
+            <View style={styles.userInfo}>
+                <Text style={styles.userInfoText}><Text style={styles.label}>Email: </Text>{"No email"}</Text>
+                <Text style={styles.userInfoText}><Text style={styles.label}>User ID: </Text>{''}</Text>
+                <View style={{marginTop: 16}}>
+                    <TextInputField label={'First Name'} />
                 </View>
-            )}
+                <TextInputField label={'Last Name'} />
+            </View>
 
-            <TouchableOpacity style={styles.deactivateButton} onPress={handleDeactivateAccount}>
+            <TouchableOpacity style={styles.deactivateButton} onPress={() => null}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Deactivate Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <TouchableOpacity style={styles.saveButton} onPress={() => null}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Handle Save</Text>
             </TouchableOpacity>
         </SafeAreaView>

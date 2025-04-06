@@ -1,34 +1,13 @@
 import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {useRouter} from "expo-router";
-import {collection, onSnapshot, orderBy, query, where} from "firebase/firestore";
-import {auth, db} from "@/firebaseConfig";
-import {PrayerIntention} from "@/models";
+import {PrayerIntention} from "@/generated-sdk";
 
 export default function Inbox() {
 
     const router = useRouter();
     const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
-
-    useEffect(() => {
-        onSnapshot(
-            query(
-                collection(db, "prayerIntentions"),
-                where("userId", "==", auth.currentUser?.uid),
-                orderBy("creationDate", "asc"),
-            ),
-            snapshot => {
-                const data = snapshot.docs.map(doc => {
-                    return {
-                        id: doc.id,
-                        ...doc.data()
-                    } as PrayerIntention;
-                });
-                setPrayerIntentions(data);
-            }
-        );
-    }, []);
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#221F1F"}}>
@@ -54,7 +33,7 @@ export default function Inbox() {
                             }
                         }
                     >
-                        <Text style={{color: '#B3B3B3'}}>"{prayerIntention.description}"</Text>
+                        <Text style={{color: '#B3B3B3'}}>"{prayerIntention.intentionText}"</Text>
                     </TouchableOpacity>
                 )
             }

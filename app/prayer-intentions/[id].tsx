@@ -3,24 +3,29 @@ import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/CtaButton";
 import {useLocalSearchParams, useRouter} from "expo-router";
-import {PrayerIntention} from "@/models";
+import {PrayerIntentionDenormalized} from "@/generated-sdk";
+import {api} from "@/sdk";
 
 const PrayerDetailScreen = () => {
 
     const router = useRouter();
     const {id} = useLocalSearchParams();
-    const [prayerIntention, setPrayerIntention] = useState<PrayerIntention>();
+    const [prayerIntention, setPrayerIntention] = useState<PrayerIntentionDenormalized>();
 
     useEffect(() => {
-
-    }, []);
+        if (id) {
+            api
+                .getPrayerIntention(parseInt(id as string))
+                .then(resp => setPrayerIntention(resp.data));
+        }
+    }, [id]);
 
     const handleAnswerPrayerIntention = async () => {
 
     };
 
-    const answerer = prayerIntention?.answeredByFirstName;
-    const answererParish = prayerIntention?.answererParish ?? 'our Christian community';
+    const answerer = prayerIntention?.answerer?.firstName ?? 'a devoted parishioner';
+    const answererChurch = prayerIntention?.answerer?.church?.name ?? 'our Christian community';
 
     return (
         <SafeAreaView style={styles.container}>
@@ -33,31 +38,31 @@ const PrayerDetailScreen = () => {
             <ScrollView contentContainerStyle={styles.content}>
                 <View style={styles.prayerBox}>
                     <Text style={styles.prayerText}>
-                        “{prayerIntention?.description}”
+                        “{prayerIntention?.intentionText}”
                     </Text>
                 </View>
 
                 {/* Response Box */}
                 {
-                    prayerIntention?.answered
+                    prayerIntention?.answerer !== undefined
                         ?
                         <View style={styles.responseBox}>
                             <Text style={styles.responseText}>
-                                “{answerer?.trim()}, a devoted parishioner from {answererParish}, lifted
+                                “{answerer?.trim()}, a devoted parishioner from {answererChurch}, lifted
                                 you up in prayer.”
                             </Text>
-                            <Text style={styles.timestamp}>{prayerIntention?.answeredTime?.toLocaleString()}</Text>
+                            <Text style={styles.timestamp}>{prayerIntention?.answeredAt}</Text>
                         </View>
                         : null
                 }
 
                 {/* Primary CTA Button */}
                 {
-                    prayerIntention?.answered
+                    prayerIntention?.answerer !== undefined
                         ?
                         <View style={styles.buttonContainer}>
                             <CtaButton
-                                title={`Pray for ${prayerIntention?.from}`}
+                                title={`Pray for ${prayerIntention?.creator?.firstName}`}
                                 onPress={handleAnswerPrayerIntention}
                             />
                         </View>

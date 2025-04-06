@@ -7,6 +7,15 @@ import org.trinityprayer.models.PrayerIntention
 import org.trinityprayer.models.PrayerIntentionDenormalized
 import org.trinityprayer.models.UserSummary
 
+/**
+ * Service class for handling operations related to prayer intentions.
+ *
+ * This service interacts with the `prayer_intentions` table in the database to retrieve,
+ * process, and return prayer intentions, supporting functionality for both users and system operations.
+ *
+ * @property namedParameterJdbcTemplate Used to execute parameterized queries against the database.
+ * @property churchService Service for retrieving church-related information.
+ */
 @Service
 class PrayerIntentionsService(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
@@ -84,6 +93,30 @@ class PrayerIntentionsService(
             throw Exception("Prayer Intention Not Found")
         }
         return ret
+    }
+
+    fun getMyPrayerIntentions(): List<PrayerIntention> {
+        return namedParameterJdbcTemplate
+            .query(
+                """
+                SELECT
+                    id, created_at, creator_id, intention_text, answerer_id, `read`, answered_at
+                FROM
+                    public.prayer_intentions
+                WHERE
+                    creator_id = :creator_id
+                """.trimIndent(), emptyMap<String, Any>()
+            ) { rs, _ ->
+                PrayerIntention(
+                    id = rs.getLong("id"),
+                    intentionText = rs.getString("intention_text"),
+                    read = rs.getBoolean("read"),
+                    answeredAt = rs.getTimestamp("answered_at")?.toInstant(),
+                    answererId = rs.getString("answerer_id"),
+                    createdAt = rs.getTimestamp("created_at").toInstant(),
+                    creatorId = rs.getString("creator_id"),
+                )
+            }
     }
 
 }

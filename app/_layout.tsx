@@ -7,10 +7,8 @@ import {useEffect, useRef, useState} from 'react';
 import 'react-native-reanimated';
 import * as Notifications from 'expo-notifications';
 import {useColorScheme} from '@/hooks/useColorScheme';
-import {savePushToken} from "@/savePushToken";
-import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
 import {GregorianChantContextProvider} from "@/context/GregorianChantContext";
-import { UserContextProvider } from '@/context/UserContext';
+import {UserContextProvider} from '@/context/UserContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -42,12 +40,6 @@ export default function RootLayout() {
     const responseListener = useRef<any>();
 
     useEffect(() => {
-        // Register for push notifications and get the token.
-        registerForPushNotificationsAsync().then((token) => {
-            if (token) {
-                savePushToken(token);
-            }
-        });
 
         // Listener for notifications received while the app is foregrounded.
         notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
@@ -75,7 +67,6 @@ export default function RootLayout() {
             </View>
         );
     }
-
 
     return (
         <UserContextProvider>

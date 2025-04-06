@@ -27,6 +27,11 @@ class TrinityPrayerController(
         return prayerIntentionsService.getPrayerIntentions()
     }
 
+    @GetMapping("my-prayer-intentions")
+    fun getMyPrayerIntentions(): List<PrayerIntention> {
+        return prayerIntentionsService.getMyPrayerIntentions()
+    }
+
     @PutMapping("prayer-intentions/{prayerIntentionId}/answer")
     fun answerPrayer(@PathVariable prayerIntentionId: Long) {
         return answerPrayerIntentionService.answerPrayerIntention(prayerIntentionId)

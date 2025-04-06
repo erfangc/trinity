@@ -1,9 +1,19 @@
-// Registers for push notifications and returns the Expo push token.
 import * as Device from "expo-device";
 import {Alert, Platform} from "react-native";
 import * as Notifications from "expo-notifications";
 
-export async function registerForPushNotificationsAsync() {
+/**
+ * Registers the device for push notifications and retrieves a push notification token.
+ *
+ * This method checks the device's permissions for receiving push notifications
+ * and requests permission if not already granted. It retrieves an Expo push token
+ * on success, handles platform-specific configurations, and logs/handles errors appropriately.
+ * Note: Push notifications are not supported on simulators.
+ *
+ * @return {Promise<string|undefined>} A promise that resolves to the push notification token
+ * if registration is successful, or `undefined` if registration fails or is not supported.
+ */
+export async function registerForPushNotificationsAsync(): Promise<string | undefined> {
     let token;
     // Note: On simulators, push notifications may not be supported.
     if (!Device.isDevice) {
