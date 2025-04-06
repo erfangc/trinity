@@ -1,13 +1,20 @@
 import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
-import {PrayerIntention} from "@/generated-sdk";
+import {PrayerIntentionDenormalized} from "@/generated-sdk";
+import {api} from "@/sdk";
 
 export default function Inbox() {
 
     const router = useRouter();
-    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
+    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntentionDenormalized[]>([]);
+
+    useEffect(() => {
+        api.getMyPrayerIntentions().then(resp =>
+            setPrayerIntentions(resp.data)
+        );
+    }, []);
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#221F1F"}}>

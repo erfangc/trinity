@@ -1,9 +1,10 @@
 import Constants from "expo-constants";
 
-const extras = Constants.manifest2?.extras || {};
-export const SUPABASE_URL = extras.SUPABASE_URL;
-export const TRINITY_API_URL = extras.TRINITY_API_URL;
-export const SUPABASE_ANON_KEY = extras.SUPABASE_ANON_KEY;
+
+const extra = Constants.manifest2?.extra?.expoClient?.extra;
+export const SUPABASE_URL = extra.SUPABASE_URL;
+export const TRINITY_API_URL = extra.TRINITY_API_URL;
+export const SUPABASE_ANON_KEY = extra.SUPABASE_ANON_KEY;
 
 console.log('-------------- Loaded environment variables: -------------- ');
 console.log(`SUPABASE_URL=${SUPABASE_URL}`);

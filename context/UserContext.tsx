@@ -2,6 +2,7 @@ import React, {createContext, ReactNode, useEffect, useState} from "react";
 import {User} from "@supabase/auth-js";
 import {supabase} from "@/supabase";
 import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
+import {api} from "@/sdk";
 
 interface UserContextValue {
     user?: User;
@@ -14,10 +15,12 @@ export const UserContextProvider = ({children}: { children: ReactNode }) => {
     const [user, setUser] = useState<User>();
 
     useEffect(() => {
-        const {data:{subscription}} = supabase.auth.onAuthStateChange(async (event, session) => {
+        const {data: {subscription}} = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
                 const expoPushToken = await registerForPushNotificationsAsync();
-                // TODO save the expoPushToken
+                if (expoPushToken) {
+                    await api.saveExpoToken(expoPushToken);
+                }
                 setUser(session?.user);
             } else if (event === "SIGNED_OUT") {
                 setUser(undefined);

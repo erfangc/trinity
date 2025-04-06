@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import org.trinityprayer.common.UserProvider
 import org.trinityprayer.models.CreatePrayerIntentionRequest
 import org.trinityprayer.models.PrayerIntention
+import java.util.UUID
 
 @Service
 class PrayerIntentionCreator(
@@ -18,20 +19,22 @@ class PrayerIntentionCreator(
 
     fun createPrayerIntention(request: CreatePrayerIntentionRequest): PrayerIntention {
         val keyHolder = GeneratedKeyHolder()
+        val sub = userProvider.getUser()?.sub
         namedParameterJdbcTemplate.update(
             """
             INSERT INTO public.prayer_intentions (creator_id, intention_text) 
             VALUES (:creator_id, :intention_text)
         """.trimIndent(),
             MapSqlParameterSource()
-                .addValue("creator_id", userProvider.getUser()?.sub)
+                .addValue("creator_id", UUID.fromString(sub))
                 .addValue("intention_text", request.intentText),
             keyHolder
         )
-        log.info("Created prayer intention id=${keyHolder.key}")
         // TODO select a person to pray for this person and send notification
+        val id = keyHolder.keys?.get("id")?.toString()?.toLong()!!
+        log.info("Created prayer intentionId=$id creatorId=$sub")
         return PrayerIntention(
-            id = keyHolder.key?.toLong()!!,
+            id = id,
             intentionText = request.intentText,
         )
     }

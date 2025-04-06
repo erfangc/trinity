@@ -1,20 +1,19 @@
 import React, {useEffect, useState} from "react";
-import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Alert, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/CtaButton";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {PrayerIntentionDenormalized} from "@/generated-sdk";
 import {api} from "@/sdk";
+import {useUser} from "@/context/UserContext";
 
 const PrayerDetailScreen = () => {
 
     const router = useRouter();
     const {id} = useLocalSearchParams();
     const [prayerIntention, setPrayerIntention] = useState<PrayerIntentionDenormalized>();
+    const user = useUser();
 
-    /**
-     * Initial fetching of the full prayer intent denormalized
-     */
     useEffect(() => {
         if (id) {
             api
@@ -26,13 +25,16 @@ const PrayerDetailScreen = () => {
     const handleAnswerPrayerIntention = async () => {
         await api
             .answerPrayer(parseInt(id as string));
-        // TODO decide what to do next
+        Alert.alert("Success", "Thank you for praying this intention.");
+        router.navigate('/landing');
     };
 
-    const answerer = prayerIntention?.answerer?.firstName ?? 'a devoted parishioner';
+    const answererName = prayerIntention?.answerer?.firstName ?? 'a devoted parishioner';
     const answererChurch = prayerIntention?.answerer?.church?.name ?? 'our Christian community';
+    const answeredAt = prayerIntention?.answeredAt ? new Date(prayerIntention?.answeredAt).toLocaleString() : undefined;
 
-    const answeredAt = prayerIntention?.answeredAt;
+    console.log(prayerIntention);
+
     return (
         <SafeAreaView style={styles.container}>
             {/* Back Button */}
@@ -50,16 +52,24 @@ const PrayerDetailScreen = () => {
 
                 {/* Response Box */}
                 {
-                    prayerIntention?.answerer !== undefined
+                    prayerIntention?.answererId
                         ?
                         <View style={styles.responseBox}>
                             <Text style={styles.responseText}>
-                                “{answerer?.trim()}, a devoted parishioner from {answererChurch}, lifted
+                                “{answererName?.trim()}, a devoted parishioner from {answererChurch}, lifted
                                 you up in prayer.”
                             </Text>
-                            {answeredAt && <Text style={styles.timestamp}>{new Date(answeredAt).toISOString()}</Text>}
+                            {answeredAt && <Text style={styles.timestamp}>{answeredAt}</Text>}
                         </View>
-                        : null
+                        :
+                        user?.id === prayerIntention?.creatorId
+                            ?
+                            <View style={styles.responseBox}>
+                                <Text style={styles.responseText}>
+                                    If someone prays for you, you will be notified here.
+                                </Text>
+                            </View>
+                            : null
                 }
 
                 {/* Primary CTA Button */}
@@ -96,6 +106,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
         paddingTop: 60, // Adjust for back button spacing
+        paddingHorizontal: 12,
     },
     prayerBox: {
         backgroundColor: "#C5B89D", // Light beige color

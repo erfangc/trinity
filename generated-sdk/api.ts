@@ -120,7 +120,7 @@ export interface PrayerIntention {
      * @type {boolean}
      * @memberof PrayerIntention
      */
-    'read': boolean;
+    'isRead': boolean;
     /**
      * 
      * @type {string}
@@ -181,7 +181,7 @@ export interface PrayerIntentionDenormalized {
      * @type {boolean}
      * @memberof PrayerIntentionDenormalized
      */
-    'read': boolean;
+    'isRead': boolean;
     /**
      * 
      * @type {string}
@@ -501,7 +501,7 @@ export const TrinityPrayerControllerApiFp = function(configuration?: Configurati
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getMyPrayerIntentions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<PrayerIntention>>> {
+        async getMyPrayerIntentions(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<PrayerIntentionDenormalized>>> {
             const localVarAxiosArgs = await localVarAxiosParamCreator.getMyPrayerIntentions(options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TrinityPrayerControllerApi.getMyPrayerIntentions']?.[localVarOperationServerIndex]?.url;
@@ -583,7 +583,7 @@ export const TrinityPrayerControllerApiFactory = function (configuration?: Confi
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getMyPrayerIntentions(options?: RawAxiosRequestConfig): AxiosPromise<Array<PrayerIntention>> {
+        getMyPrayerIntentions(options?: RawAxiosRequestConfig): AxiosPromise<Array<PrayerIntentionDenormalized>> {
             return localVarFp.getMyPrayerIntentions(options).then((request) => request(axios, basePath));
         },
         /**

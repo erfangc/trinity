@@ -26,14 +26,19 @@ export function CreatePrayerIntentionScreen() {
             return;
         }
 
-        await api.createPrayerIntention({intentText});
-        Alert.alert(
-            "Submitted",
-            "Your prayer intention has been submitted. We will notify you when a fellow member prays for you."
-        );
-        // Clear the input field after submission
-        setIntentText('');
-        router.back();
+        try {
+            await api.createPrayerIntention({intentText});
+            Alert.alert(
+                "Submitted",
+                "Your prayer intention has been submitted. We will notify you when a fellow member prays for you."
+            );
+            // Clear the input field after submission
+            setIntentText('');
+            router.navigate("/landing");
+        } catch (error) {
+            console.error(error);
+            Alert.alert("Error", "Failed to submit prayer intention.");
+        }
     };
 
     return (

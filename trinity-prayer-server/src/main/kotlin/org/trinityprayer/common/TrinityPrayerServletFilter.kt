@@ -29,14 +29,14 @@ class TrinityPrayerServletFilter(
                 userProvider.setUser(jwt.token)
             } catch (ex: Exception) {
                 response.status = HttpServletResponse.SC_UNAUTHORIZED
-                log.info("Failed to validate token message=${ex.message}", ex)
+                log.info("Failed to validate token status=${response.status} message=${ex.message}", ex)
                 return
             }
         } else if (allowWithoutAccessToken(request)) {
             log.info("Allowing call to ${request.requestURI} without token")
         } else {
             response.status = HttpServletResponse.SC_UNAUTHORIZED
-            log.info("No token found for ${request.method} ${request.requestURI}")
+            log.info("No token found for ${request.method} ${request.requestURI} status=${response.status}")
             return
         }
 
@@ -44,7 +44,7 @@ class TrinityPrayerServletFilter(
             filterChain.doFilter(request, response)
         } finally {
             userProvider.clearUser()
-            log.info("Finished processing ${request.method} ${request.requestURI}")
+            log.info("Finished processing ${request.method} ${request.requestURI} status=${response.status}")
         }
     }
 

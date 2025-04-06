@@ -28,7 +28,7 @@ class TrinityPrayerController(
     }
 
     @GetMapping("my-prayer-intentions")
-    fun getMyPrayerIntentions(): List<PrayerIntention> {
+    fun getMyPrayerIntentions(): List<PrayerIntentionDenormalized> {
         return prayerIntentionsService.getMyPrayerIntentions()
     }
 

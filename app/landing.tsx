@@ -65,7 +65,7 @@ export default function LandingScreen() {
                 {prayerIntentions.map(prayerIntention => (
                     <PrayerRequestCard
                         key={prayerIntention.id}
-                        name={prayerIntention.creatorId??'Anonymous'}
+                        prayerIntention={prayerIntention}
                         onPress={() => navigateToPrayerIntention(prayerIntention)}
                     />
                 ))}

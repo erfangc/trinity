@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
 import org.trinityprayer.common.UserProvider
+import java.util.UUID
 
 @Service
 class AnswerPrayerIntentionService(
@@ -14,12 +15,12 @@ class AnswerPrayerIntentionService(
     private val log = LoggerFactory.getLogger(AnswerPrayerIntentionService::class.java)
 
     fun answerPrayerIntention(prayerIntentionId: Long) {
-        val sub = userProvider.getUser()?.sub
+        val sub = userProvider.getUser()?.sub?.let { UUID.fromString(it) } ?: throw IllegalStateException("User not signed in")
         namedParameterJdbcTemplate
             .update(
                 """
                 UPDATE public.prayer_intentions
-                SET answerer_id = :answerer_id, answered_at = CURRENT_TIMESTAMP()
+                SET answerer_id = :answerer_id, answered_at = now()
                 WHERE id = :prayer_intention_id
                 """.trimIndent(),
                 MapSqlParameterSource()
