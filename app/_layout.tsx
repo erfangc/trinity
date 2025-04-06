@@ -9,6 +9,7 @@ import * as Notifications from 'expo-notifications';
 import {useColorScheme} from '@/hooks/useColorScheme';
 import {GregorianChantContextProvider} from "@/context/GregorianChantContext";
 import {UserContextProvider} from '@/context/UserContext';
+import '@/environment';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -40,7 +41,6 @@ export default function RootLayout() {
     const responseListener = useRef<any>();
 
     useEffect(() => {
-
         // Listener for notifications received while the app is foregrounded.
         notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
             setNotification(notification);

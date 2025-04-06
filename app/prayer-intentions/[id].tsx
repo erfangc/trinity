@@ -12,6 +12,9 @@ const PrayerDetailScreen = () => {
     const {id} = useLocalSearchParams();
     const [prayerIntention, setPrayerIntention] = useState<PrayerIntentionDenormalized>();
 
+    /**
+     * Initial fetching of the full prayer intent denormalized
+     */
     useEffect(() => {
         if (id) {
             api
@@ -21,12 +24,15 @@ const PrayerDetailScreen = () => {
     }, [id]);
 
     const handleAnswerPrayerIntention = async () => {
-
+        await api
+            .answerPrayer(parseInt(id as string));
+        // TODO decide what to do next
     };
 
     const answerer = prayerIntention?.answerer?.firstName ?? 'a devoted parishioner';
     const answererChurch = prayerIntention?.answerer?.church?.name ?? 'our Christian community';
 
+    const answeredAt = prayerIntention?.answeredAt;
     return (
         <SafeAreaView style={styles.container}>
             {/* Back Button */}
@@ -51,7 +57,7 @@ const PrayerDetailScreen = () => {
                                 “{answerer?.trim()}, a devoted parishioner from {answererChurch}, lifted
                                 you up in prayer.”
                             </Text>
-                            <Text style={styles.timestamp}>{prayerIntention?.answeredAt}</Text>
+                            {answeredAt && <Text style={styles.timestamp}>{new Date(answeredAt).toISOString()}</Text>}
                         </View>
                         : null
                 }

@@ -1,3 +1,12 @@
-export const SUPABASE_URL = "https://dxbepeosafgqworcuycz.supabase.co";
-export const TRINITY_API_URL = "http://localhost:8080";
-export const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR4YmVwZW9zYWZncXdvcmN1eWN6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM2Mjc0MTMsImV4cCI6MjA1OTIwMzQxM30.sm9fzPCzeVrHJMJxAd0dVeCezteREKFJTktlH9VNxFI";
+import Constants from "expo-constants";
+
+const extras = Constants.manifest2?.extras || {};
+export const SUPABASE_URL = extras.SUPABASE_URL;
+export const TRINITY_API_URL = extras.TRINITY_API_URL;
+export const SUPABASE_ANON_KEY = extras.SUPABASE_ANON_KEY;
+
+console.log('-------------- Loaded environment variables: -------------- ');
+console.log(`SUPABASE_URL=${SUPABASE_URL}`);
+console.log(`TRINITY_API_URL=${TRINITY_API_URL}`);
+console.log(`SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}`);
+console.log('----------------------------------------------------------- ');
