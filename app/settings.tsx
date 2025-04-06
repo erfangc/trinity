@@ -1,14 +1,48 @@
-import React from "react";
-import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useState} from "react";
+import {Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
 import {TextInputField} from "@/components/TextInputField";
-
+import {supabase} from "@/supabase";
+import {useUser} from "@/context/UserContext";
 
 export default function Inbox() {
 
     const router = useRouter();
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const user = useUser();
 
+    useEffect(() => {
+        if (user) {
+            setFirstName(user.user_metadata?.first_name || "");
+            setLastName(user.user_metadata?.last_name || "");
+        }
+    }, [user]);
+
+    const handleSave = async () => {
+        if (!user) {
+            Alert.alert("Error", "User is not logged in");
+            return;
+        }
+
+        const { data, error } = await supabase
+            .auth
+            .updateUser({
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                }
+            });
+
+        if (error) {
+            console.error("Error updating user metadata:", error.message);
+            Alert.alert("Error", error.message);
+            return;
+        }
+
+        Alert.alert("Success", "User metadata updated successfully");
+    };
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#221F1F"}}>
@@ -22,18 +56,18 @@ export default function Inbox() {
 
             {/* Display User Data */}
             <View style={styles.userInfo}>
-                <Text style={styles.userInfoText}><Text style={styles.label}>Email: </Text>{"No email"}</Text>
-                <Text style={styles.userInfoText}><Text style={styles.label}>User ID: </Text>{''}</Text>
+                <Text style={styles.userInfoText}><Text style={styles.label}>Email: </Text>{user?.email}</Text>
+                <Text style={styles.userInfoText}><Text style={styles.label}>User ID: </Text>{user?.id}</Text>
                 <View style={{marginTop: 16}}>
-                    <TextInputField label={'First Name'} />
+                    <TextInputField label={'First Name'} value={firstName} onChangeText={setFirstName}/>
                 </View>
-                <TextInputField label={'Last Name'} />
+                <TextInputField label={'Last Name'} value={lastName} onChangeText={setLastName}/>
             </View>
 
             <TouchableOpacity style={styles.deactivateButton} onPress={() => null}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Deactivate Account</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.saveButton} onPress={() => null}>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Handle Save</Text>
             </TouchableOpacity>
         </SafeAreaView>

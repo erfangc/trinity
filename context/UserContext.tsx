@@ -20,7 +20,13 @@ export const UserContextProvider = ({children}: { children: ReactNode }) => {
                 const expoPushToken = await registerForPushNotificationsAsync();
                 if (expoPushToken) {
                     await api.saveExpoToken(expoPushToken);
+                } else {
+                    console.log(
+                        "Failed to register for push notifications"
+                    );
                 }
+                setUser(session?.user);
+            } else if (event === 'USER_UPDATED') {
                 setUser(session?.user);
             } else if (event === "SIGNED_OUT") {
                 setUser(undefined);
