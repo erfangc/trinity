@@ -38,7 +38,7 @@ class ExpoPushTokenService(
         val httpRequest = HttpRequest
             .newBuilder()
             .PUT(BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
-            .uri(URI.create("$SUPABASE_URL/auth/v1/admin/users/${user?.sub}?apiKey=$SUPABASE_SERVICE_ROLE_KEY"))
+            .uri(URI.create("$SUPABASE_URL/auth/v1/admin/users/${user?.sub}?apikey=$SUPABASE_SERVICE_ROLE_KEY"))
             .build()
 
         log.info("Calling ${httpRequest.method()} ${httpRequest.uri()}")
