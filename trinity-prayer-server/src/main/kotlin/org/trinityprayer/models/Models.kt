@@ -43,3 +43,9 @@ data class PrayerIntentionDenormalized(
 data class CreatePrayerIntentionRequest(
     val intentText: String,
 )
+
+data class ExpoNotificationPayload(
+    val to: String,
+    val title: String,
+    val body: String
+)

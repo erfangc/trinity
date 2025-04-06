@@ -15,5 +15,6 @@ echo "⚙️ Building project..."
 echo "🚀 Restarting service..."
 systemctl restart trinity-prayer || systemctl start trinity-prayer
 
-echo "✅ Deployment complete!"
+echo "📄 Tailing logs (showing last 30 lines)..."
+journalctl -u trinity-prayer -n 30 --no-pager
 EOF

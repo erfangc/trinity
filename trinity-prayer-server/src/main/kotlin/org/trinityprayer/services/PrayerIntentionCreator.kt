@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service
 import org.trinityprayer.common.UserProvider
 import org.trinityprayer.models.CreatePrayerIntentionRequest
 import org.trinityprayer.models.PrayerIntention
-import java.util.UUID
+import java.util.*
 
 @Service
 class PrayerIntentionCreator(
@@ -19,14 +19,17 @@ class PrayerIntentionCreator(
 
     fun createPrayerIntention(request: CreatePrayerIntentionRequest): PrayerIntention {
         val keyHolder = GeneratedKeyHolder()
-        val sub = userProvider.getUser()?.sub
+        val user = userProvider.getUser()
+        val sub = user?.sub?.let { UUID.fromString(it) } ?: throw IllegalStateException("User not signed in")
+
         namedParameterJdbcTemplate.update(
             """
             INSERT INTO public.prayer_intentions (creator_id, intention_text) 
             VALUES (:creator_id, :intention_text)
-        """.trimIndent(),
+            """.trimIndent(),
+
             MapSqlParameterSource()
-                .addValue("creator_id", UUID.fromString(sub))
+                .addValue("creator_id", sub)
                 .addValue("intention_text", request.intentText),
             keyHolder
         )
