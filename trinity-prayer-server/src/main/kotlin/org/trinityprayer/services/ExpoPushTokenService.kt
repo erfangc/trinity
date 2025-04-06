@@ -3,6 +3,7 @@ package org.trinityprayer.services
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
+import org.trinityprayer.common.Environment.SUPABASE_SERVICE_ROLE_KEY
 import org.trinityprayer.common.Environment.SUPABASE_URL
 import org.trinityprayer.common.UserProvider
 import java.net.URI
@@ -37,6 +38,7 @@ class ExpoPushTokenService(
         val httpRequest = HttpRequest
             .newBuilder()
             .PUT(BodyPublishers.ofString(objectMapper.writeValueAsString(payload)))
+            .header("Authorization", "Bearer $SUPABASE_SERVICE_ROLE_KEY")
             .uri(URI.create("$SUPABASE_URL/auth/v1/admin/users/${user?.sub}"))
             .build()
 
