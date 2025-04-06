@@ -3,8 +3,6 @@ import {SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View} from
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/CtaButton";
 import {useLocalSearchParams, useRouter} from "expo-router";
-import {fetchPrayIntentionById, markPrayerIntentionAsAnswered} from "@/fetchPrayerIntetions";
-import {auth} from "@/firebaseConfig";
 import {PrayerIntention} from "@/models";
 
 const PrayerDetailScreen = () => {
@@ -12,29 +10,13 @@ const PrayerDetailScreen = () => {
     const router = useRouter();
     const {id} = useLocalSearchParams();
     const [prayerIntention, setPrayerIntention] = useState<PrayerIntention>();
-    const currentUser = auth.currentUser;
 
     useEffect(() => {
-        if (id && typeof id === "string") {
-            fetchPrayIntentionById(id)
-                .then(prayerIntention => {
-                    if (prayerIntention) {
-                        setPrayerIntention(prayerIntention)
-                    }
-                });
-        }
+
     }, []);
 
     const handleAnswerPrayerIntention = async () => {
-        if (id && typeof id === "string") {
-            await markPrayerIntentionAsAnswered(id);
-            fetchPrayIntentionById(id)
-                .then(prayerIntention => {
-                    if (prayerIntention) {
-                        setPrayerIntention(prayerIntention)
-                    }
-                });
-        }
+
     };
 
     const answerer = prayerIntention?.answeredByFirstName;
@@ -71,7 +53,7 @@ const PrayerDetailScreen = () => {
 
                 {/* Primary CTA Button */}
                 {
-                    currentUser && !prayerIntention?.answered
+                    prayerIntention?.answered
                         ?
                         <View style={styles.buttonContainer}>
                             <CtaButton

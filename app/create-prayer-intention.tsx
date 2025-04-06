@@ -13,7 +13,6 @@ import {
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
-import {addPrayIntention} from "@/addPrayerIntention";
 
 export function CreatePrayerIntentionScreen() {
 
@@ -26,19 +25,14 @@ export function CreatePrayerIntentionScreen() {
             return;
         }
 
-        const response = await addPrayIntention({intention_text: intentText});
-        if (response?.error) {
-            Alert.alert("Error", "Failed to submit prayer intention.");
-            console.error(JSON.stringify(response?.error));
-        } else {
-            Alert.alert(
-                "Submitted",
-                "Your prayer intention has been submitted. We will notify you when a fellow member prays for you."
-            );
-            // Clear the input field after submission
-            setIntentText('');
-            router.back();
-        }
+        // TODO
+        Alert.alert(
+            "Submitted",
+            "Your prayer intention has been submitted. We will notify you when a fellow member prays for you."
+        );
+        // Clear the input field after submission
+        setIntentText('');
+        router.back();
     };
 
     return (

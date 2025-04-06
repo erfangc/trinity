@@ -38,4 +38,4 @@ yarn-error.*
 app-example
 .firebase/hosting.*.cache
 
-infrastructure/terraform.tfvars
+.idea
