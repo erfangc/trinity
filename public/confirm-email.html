@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        .status {
+            font-size: 18px;
+            margin-top: 20px;
+        }
+        .loading {
+            color: #007bff;
+        }
+        .success {
+            color: #28a745;
+        }
+        .error {
+            color: #dc3545;
+        }
+    </style>
+</head>
+<body>
+<h1>Email Confirmation</h1>
+<div class="status loading">Confirming your email...</div>
+
+<script>
+    function getFragmentParams() {
+        const hash = window.location.hash.substring(1); // Remove the initial '#'
+        const params = new URLSearchParams(hash);
+        return {
+            access_token: params.get('access_token'),     // Get the access token
+            type: params.get('type'),                     // Get the type (e.g., "recovery")
+            refresh_token: params.get('refresh_token')    // Get the refresh token
+        };
+    }
+
+    // Main Function: Handle Email Confirmation
+    async function confirmEmail() {
+        const statusElement = document.querySelector('.status');
+        const { access_token } = getFragmentParams(); // Now using the fragment params
+        if (!access_token) {
+            // Show error details to the user
+            statusElement.textContent = `Error confirming email. Link expired or invalid.`;
+            statusElement.className = 'status error';
+        } else {
+            // Success confirmation
+            statusElement.textContent = 'Your email has been successfully confirmed!';
+            statusElement.className = 'status success';
+        }
+    }
+
+    // Run the confirmation logic as soon as the page loads
+    confirmEmail();
+</script>
+</body>
+</html>

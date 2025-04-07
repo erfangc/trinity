@@ -53,10 +53,11 @@ export default function SignUp() {
                 email,
                 password,
                 options: {
+                    emailRedirectTo: "http://localhost:63342/trinity/public/confirm-email.html",
                     data: {
                         first_name: firstName,
                         last_name: lastName,
-                    }
+                    },
                 },
             });
 
