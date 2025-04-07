@@ -17,7 +17,6 @@ export async function registerForPushNotificationsAsync(): Promise<string | unde
     let token;
     // Note: On simulators, push notifications may not be supported.
     if (!Device.isDevice) {
-        Alert.alert('Push notifications are not supported on simulators.');
         return;
     }
 
@@ -28,7 +27,6 @@ export async function registerForPushNotificationsAsync(): Promise<string | unde
         finalStatus = status;
     }
     if (finalStatus !== 'granted') {
-        Alert.alert('Failed to get push token for push notifications!');
         return;
     }
     try {
