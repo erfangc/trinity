@@ -1,5 +1,7 @@
 package org.trinityprayer.services
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
@@ -12,7 +14,8 @@ import java.util.UUID
 class AnswerPrayerIntentionService(
     private val namedParameterJdbcTemplate: NamedParameterJdbcTemplate,
     private val userProvider: UserProvider,
-    private val pushNotificationService: PushNotificationService
+    private val pushNotificationService: PushNotificationService,
+    private val objectMapper: ObjectMapper
 ) {
     private val log = LoggerFactory.getLogger(AnswerPrayerIntentionService::class.java)
 
@@ -20,6 +23,7 @@ class AnswerPrayerIntentionService(
         val user = userProvider.getUser()
         val sub = user?.sub?.let { UUID.fromString(it) } ?: throw IllegalStateException("User not signed in")
         val firstName = user.userMetadata?.firstName ?: "Someone"
+        val expoPushTokens: List<String> = getExpoPushTokens(prayerIntentionId)
 
         namedParameterJdbcTemplate
             .update(
@@ -33,7 +37,6 @@ class AnswerPrayerIntentionService(
                     .addValue("answerer_id", sub),
             )
 
-        val expoPushTokens = user.userMetadata?.expoPushTokens ?: emptyList()
         val notificationPayload = ExpoNotificationPayload(
             to = "",
             title = "Prayer Answer",
@@ -48,6 +51,29 @@ class AnswerPrayerIntentionService(
         }
 
         log.info("Answered prayer intentionId=$prayerIntentionId answererId=$sub")
+    }
+
+    private fun getExpoPushTokens(prayerIntentionId: Long): List<String> {
+        val expoPushTokens: List<String> = namedParameterJdbcTemplate.queryForObject(
+            """
+            SELECT 
+                u.raw_user_meta_data->>'expoPushToken' as expoPushTokens
+            FROM
+                public.prayer_intentions pi
+            JOIN
+                auth.users u
+            ON
+                pi.creator_id = u.id
+            WHERE
+                pi.id = :id
+            """.trimIndent(),
+            MapSqlParameterSource()
+                .addValue("id", prayerIntentionId),
+        ) { rs, _ ->
+            val json = rs.getString("expoPushTokens")
+            if (!json.isNullOrBlank()) objectMapper.readValue(json) else emptyList()
+        } ?: emptyList()
+        return expoPushTokens
     }
 
 }

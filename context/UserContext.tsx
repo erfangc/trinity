@@ -19,7 +19,7 @@ export const UserContextProvider = ({children}: { children: ReactNode }) => {
             if (event === "SIGNED_IN" || event === "INITIAL_SESSION") {
                 const expoPushToken = await registerForPushNotificationsAsync();
                 if (expoPushToken) {
-                    await api.saveExpoToken(expoPushToken);
+                    await supabase.auth.updateUser({data: {expoPushToken: [expoPushToken]}});
                 } else {
                     console.log(
                         "Failed to register for push notifications"

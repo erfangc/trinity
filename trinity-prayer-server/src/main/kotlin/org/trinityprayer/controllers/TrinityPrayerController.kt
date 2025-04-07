@@ -10,17 +10,11 @@ import org.trinityprayer.services.*
 @RestController
 @RequestMapping("/api/v1")
 class TrinityPrayerController(
-    private val expoPushTokenService: ExpoPushTokenService,
     private val prayerIntentionCreator: PrayerIntentionCreator,
     private val prayerIntentionsService: PrayerIntentionsService,
     private val answerPrayerIntentionService: AnswerPrayerIntentionService,
     private val churchService: ChurchService,
 ) {
-
-    @PutMapping("expo-push-tokens")
-    fun saveExpoToken(@RequestParam expoPushToken: String) {
-        expoPushTokenService.addPushToken(expoPushToken)
-    }
 
     @GetMapping("prayer-intentions")
     fun getPrayerIntentions(): List<PrayerIntentionDenormalized> {

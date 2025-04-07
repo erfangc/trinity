@@ -40,7 +40,7 @@ export interface Church {
      * @type {string}
      * @memberof Church
      */
-    'createdAt': string;
+    'createdAt'?: string;
     /**
      * 
      * @type {string}
@@ -96,7 +96,7 @@ export interface PrayerIntention {
      * @type {string}
      * @memberof PrayerIntention
      */
-    'createdAt': string;
+    'createdAt'?: string;
     /**
      * 
      * @type {string}
@@ -145,7 +145,7 @@ export interface PrayerIntentionDenormalized {
      * @type {string}
      * @memberof PrayerIntentionDenormalized
      */
-    'createdAt': string;
+    'createdAt'?: string;
     /**
      * 
      * @type {string}
@@ -200,13 +200,13 @@ export interface UserSummary {
      * @type {string}
      * @memberof UserSummary
      */
-    'id': string;
+    'id'?: string;
     /**
      * 
      * @type {string}
      * @memberof UserSummary
      */
-    'firstName': string;
+    'firstName'?: string;
     /**
      * 
      * @type {string}
@@ -415,42 +415,6 @@ export const TrinityPrayerControllerApiAxiosParamCreator = function (configurati
                 options: localVarRequestOptions,
             };
         },
-        /**
-         * 
-         * @param {string} expoPushToken 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        saveExpoToken: async (expoPushToken: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'expoPushToken' is not null or undefined
-            assertParamExists('saveExpoToken', 'expoPushToken', expoPushToken)
-            const localVarPath = `/api/v1/expo-push-tokens`;
-            // use dummy base URL string because the URL constructor only accepts absolute URLs.
-            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
-            let baseOptions;
-            if (configuration) {
-                baseOptions = configuration.baseOptions;
-            }
-
-            const localVarRequestOptions = { method: 'PUT', ...baseOptions, ...options};
-            const localVarHeaderParameter = {} as any;
-            const localVarQueryParameter = {} as any;
-
-            if (expoPushToken !== undefined) {
-                localVarQueryParameter['expoPushToken'] = expoPushToken;
-            }
-
-
-    
-            setSearchParams(localVarUrlObj, localVarQueryParameter);
-            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
-            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-
-            return {
-                url: toPathString(localVarUrlObj),
-                options: localVarRequestOptions,
-            };
-        },
     }
 };
 
@@ -530,18 +494,6 @@ export const TrinityPrayerControllerApiFp = function(configuration?: Configurati
             const localVarOperationServerBasePath = operationServerMap['TrinityPrayerControllerApi.getPrayerIntentions']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
         },
-        /**
-         * 
-         * @param {string} expoPushToken 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        async saveExpoToken(expoPushToken: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<void>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.saveExpoToken(expoPushToken, options);
-            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
-            const localVarOperationServerBasePath = operationServerMap['TrinityPrayerControllerApi.saveExpoToken']?.[localVarOperationServerIndex]?.url;
-            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
-        },
     }
 };
 
@@ -602,15 +554,6 @@ export const TrinityPrayerControllerApiFactory = function (configuration?: Confi
          */
         getPrayerIntentions(options?: RawAxiosRequestConfig): AxiosPromise<Array<PrayerIntentionDenormalized>> {
             return localVarFp.getPrayerIntentions(options).then((request) => request(axios, basePath));
-        },
-        /**
-         * 
-         * @param {string} expoPushToken 
-         * @param {*} [options] Override http request option.
-         * @throws {RequiredError}
-         */
-        saveExpoToken(expoPushToken: string, options?: RawAxiosRequestConfig): AxiosPromise<void> {
-            return localVarFp.saveExpoToken(expoPushToken, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -683,17 +626,6 @@ export class TrinityPrayerControllerApi extends BaseAPI {
      */
     public getPrayerIntentions(options?: RawAxiosRequestConfig) {
         return TrinityPrayerControllerApiFp(this.configuration).getPrayerIntentions(options).then((request) => request(this.axios, this.basePath));
-    }
-
-    /**
-     * 
-     * @param {string} expoPushToken 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof TrinityPrayerControllerApi
-     */
-    public saveExpoToken(expoPushToken: string, options?: RawAxiosRequestConfig) {
-        return TrinityPrayerControllerApiFp(this.configuration).saveExpoToken(expoPushToken, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
