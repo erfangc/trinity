@@ -22,7 +22,6 @@ export default function SignIn() {
         if (error) {
             Alert.alert("Error", error.message || "Failed to sign in. Please try again.");
         } else {
-            console.log(`${data?.user?.id} signed in successfully!`);
             router.push("/landing");
         }
     };

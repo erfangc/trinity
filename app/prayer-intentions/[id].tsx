@@ -5,7 +5,7 @@ import CtaButton from "@/components/CtaButton";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {PrayerIntentionDenormalized} from "@/generated-sdk";
 import {api} from "@/sdk";
-import {useUser} from "@/context/UserContext";
+import {useUser} from "@/hooks/useUser";
 
 const PrayerDetailScreen = () => {
 
@@ -32,8 +32,6 @@ const PrayerDetailScreen = () => {
     const answererName = prayerIntention?.answerer?.firstName ?? 'a devoted parishioner';
     const answererChurch = prayerIntention?.answerer?.church?.name ?? 'our Christian community';
     const answeredAt = prayerIntention?.answeredAt ? new Date(prayerIntention?.answeredAt).toLocaleString() : undefined;
-
-    console.log(prayerIntention);
 
     return (
         <SafeAreaView style={styles.container}>

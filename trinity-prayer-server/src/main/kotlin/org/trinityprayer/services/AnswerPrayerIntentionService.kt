@@ -41,6 +41,7 @@ class AnswerPrayerIntentionService(
             to = "",
             title = "Prayer Answer",
             body = "$firstName have answered a prayer intention",
+            data = mapOf("prayerIntentionId" to prayerIntentionId.toString()),
         )
 
         log.info("Sending ${expoPushTokens.size} notifications for prayer intentionId=$prayerIntentionId answererId=$sub")

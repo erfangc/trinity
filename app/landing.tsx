@@ -7,9 +7,11 @@ import {NotificationIcon} from "@/components/NotificationIcon";
 import {SettingsIcon} from "@/components/SettingsIcon";
 import {PlayPauseIcon} from "@/components/PlayPauseIcon";
 import {supabase} from "@/supabase";
-import {User} from "@supabase/auth-js";
 import {PrayerIntentionDenormalized} from "@/generated-sdk";
+import * as Notifications from 'expo-notifications';
 import {api} from "@/sdk";
+import {useUser} from "@/hooks/useUser";
+import {handlePushNotificationNavigation} from "@/handlePushNotificationNavigation";
 
 /**
  * A functional component that represents the main landing screen of the application.
@@ -22,12 +24,7 @@ export default function LandingScreen() {
 
     const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntentionDenormalized[]>([]);
     const router = useRouter();
-
-    const [user, setUser] = useState<User>();
-
-    useEffect(() => {
-        supabase.auth.getSession().then(({data}) => setUser(data?.session?.user ?? undefined));
-    }, []);
+    const user = useUser();
 
     useEffect(() => {
         if (user && !user.is_anonymous) {
@@ -38,6 +35,15 @@ export default function LandingScreen() {
     const handleSignOut = () => {
         supabase.auth.signOut().then(() => router.push('/'));
     };
+
+    useEffect(() => {
+        Notifications
+            .getLastNotificationResponseAsync()
+            .then(response => {
+                const data = response?.notification?.request?.content?.data;
+                handlePushNotificationNavigation(data);
+            });
+    }, []);
 
     const navigateToPrayerIntention = (prayerIntention: PrayerIntentionDenormalized) => {
         router.push(`/prayer-intentions/${prayerIntention.id}`);

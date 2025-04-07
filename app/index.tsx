@@ -6,14 +6,13 @@ import {useRouter} from "expo-router";
 import {SignUpButton} from "@/components/SignUpButton";
 import {OrSeparator} from "@/components/OrSeparator";
 import {PlayPauseIcon} from "@/components/PlayPauseIcon";
-import {useUser} from "@/context/UserContext";
 import {supabase} from "@/supabase";
+import {useUser} from "@/hooks/useUser";
 
 export default function HomeScreen() {
 
     const [firstName, setFirstName] = useState<string>('');
     const router = useRouter();
-
     const user = useUser();
 
     useEffect(() => {

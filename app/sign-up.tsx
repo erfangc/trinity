@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
 import {TextInputField} from "@/components/TextInputField";
 import CtaButton from "@/components/CtaButton";
 import {supabase} from "@/supabase";
-import {useUser} from "@/context/UserContext";
 
 export default function SignUp() {
 

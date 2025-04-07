@@ -4,7 +4,7 @@ import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
 import {TextInputField} from "@/components/TextInputField";
 import {supabase} from "@/supabase";
-import {useUser} from "@/context/UserContext";
+import {useUser} from "@/hooks/useUser";
 
 export default function Inbox() {
 

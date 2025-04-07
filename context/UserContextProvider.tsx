@@ -1,14 +1,8 @@
-import React, {createContext, ReactNode, useEffect, useState} from "react";
+import React, {ReactNode, useEffect, useState, createContext} from "react";
 import {User} from "@supabase/auth-js";
 import {supabase} from "@/supabase";
 import {registerForPushNotificationsAsync} from "@/registerForPushNotificationsAsync";
-import {api} from "@/sdk";
-
-interface UserContextValue {
-    user?: User;
-}
-
-const UserContext = createContext<UserContextValue>({});
+import { UserContext } from "./UserContext";
 
 export const UserContextProvider = ({children}: { children: ReactNode }) => {
 
@@ -20,10 +14,6 @@ export const UserContextProvider = ({children}: { children: ReactNode }) => {
                 const expoPushToken = await registerForPushNotificationsAsync();
                 if (expoPushToken) {
                     await supabase.auth.updateUser({data: {expoPushToken: [expoPushToken]}});
-                } else {
-                    console.log(
-                        "Failed to register for push notifications"
-                    );
                 }
                 setUser(session?.user);
             } else if (event === 'USER_UPDATED') {
@@ -41,9 +31,4 @@ export const UserContextProvider = ({children}: { children: ReactNode }) => {
             {children}
         </UserContext.Provider>
     );
-};
-
-export const useUser = () => {
-    const userContextValue = React.useContext(UserContext);
-    return userContextValue.user;
 };

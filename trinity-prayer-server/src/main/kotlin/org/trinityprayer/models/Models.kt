@@ -47,5 +47,6 @@ data class CreatePrayerIntentionRequest(
 data class ExpoNotificationPayload(
     val to: String,
     val title: String,
-    val body: String
+    val body: String,
+    val data: Map<String, String>? = null,
 )

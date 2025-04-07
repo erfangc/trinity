@@ -3,13 +3,15 @@ import {useFonts} from 'expo-font';
 import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {ActivityIndicator, StatusBar, StyleSheet, View} from 'react-native';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef} from 'react';
 import 'react-native-reanimated';
 import * as Notifications from 'expo-notifications';
 import {useColorScheme} from '@/hooks/useColorScheme';
 import {GregorianChantContextProvider} from "@/context/GregorianChantContext";
-import {UserContextProvider} from '@/context/UserContext';
+import {UserContextProvider} from '@/context/UserContextProvider';
 import '@/environment';
+import {supabase} from "@/supabase";
+import {handlePushNotificationNavigation} from "@/handlePushNotificationNavigation";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,24 +38,19 @@ export default function RootLayout() {
         }
     }, [loaded]);
 
-    const [, setNotification] = useState<Notifications.Notification | null>(null);
-    const notificationListener = useRef<any>();
     const responseListener = useRef<any>();
 
     useEffect(() => {
-        // Listener for notifications received while the app is foregrounded.
-        notificationListener.current = Notifications.addNotificationReceivedListener((notification) => {
-            setNotification(notification);
-        });
-
         // Listener for when a user interacts with a notification.
-        responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-            console.log('User interacted with notification:', response);
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(async (response) => {
+            const {data} = await supabase.auth.getSession();
+            if (data && data.session) {
+                handlePushNotificationNavigation(response.notification.request.content.data);
+                await Notifications.clearLastNotificationResponseAsync();
+            }
         });
 
         return () => {
-            if (notificationListener.current)
-                Notifications.removeNotificationSubscription(notificationListener.current);
             if (responseListener.current)
                 Notifications.removeNotificationSubscription(responseListener.current);
         };
@@ -69,10 +66,11 @@ export default function RootLayout() {
     }
 
     return (
-        <UserContextProvider>
-            <GregorianChantContextProvider>
-                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                    <StatusBar barStyle="light-content"/>
+
+        <GregorianChantContextProvider>
+            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                <StatusBar barStyle="light-content"/>
+                <UserContextProvider>
                     <Stack screenOptions={{headerShown: false}}>
                         <Stack.Screen name="index"/>
                         <Stack.Screen name="landing"/>
@@ -84,9 +82,9 @@ export default function RootLayout() {
                         <Stack.Screen name="prayer-intentions/:id"/>
                         <Stack.Screen name="+not-found"/>
                     </Stack>
-                </ThemeProvider>
-            </GregorianChantContextProvider>
-        </UserContextProvider>
+                </UserContextProvider>
+            </ThemeProvider>
+        </GregorianChantContextProvider>
     );
 }
 

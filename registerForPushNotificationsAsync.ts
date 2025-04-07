@@ -33,7 +33,6 @@ export async function registerForPushNotificationsAsync(): Promise<string | unde
     }
     try {
         token = (await Notifications.getExpoPushTokenAsync()).data;
-        console.log('Expo push token:', token);
     } catch (error) {
         console.error('Error getting Expo push token:', error);
     }
