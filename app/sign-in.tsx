@@ -1,5 +1,14 @@
-import React, {useState} from "react";
-import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
+import React, {useRef, useState} from "react";
+import {
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {TextInputField} from "@/components/TextInputField";
 import CtaButton from "@/components/CtaButton";
@@ -12,17 +21,16 @@ export default function SignIn() {
     const [password, setPassword] = useState("");
     const router = useRouter();
 
+    const passwordInputRef = useRef<TextInput>(null); // Ref for the password input
+
     const signIn = async (username: string, password: string) => {
         if (!username || !password) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
         }
-
-        const {data, error} = await supabase.auth.signInWithPassword({email: username, password});
+        const {error} = await supabase.auth.signInWithPassword({email: username, password});
         if (error) {
             Alert.alert("Error", error.message || "Failed to sign in. Please try again.");
-        } else {
-            router.push("/landing");
         }
     };
 
@@ -49,6 +57,8 @@ export default function SignIn() {
                             autoComplete="email"
                             importantForAutofill="yes"
                             textContentType="emailAddress"
+                            returnKeyType="next"
+                            onSubmitEditing={() => passwordInputRef.current?.focus()}
                             onChangeText={setEmail}
                         />
                         <TextInputField
@@ -59,11 +69,12 @@ export default function SignIn() {
                             importantForAutofill="yes"
                             textContentType="password"
                             value={password}
+                            ref={passwordInputRef}
+                            onSubmitEditing={handleSignIn}
                             onChangeText={setPassword}
                         />
                     </View>
 
-                    {/* Submit Button */}
                     <View>
                         <CtaButton title="Sign In" onPress={handleSignIn}/>
                     </View>
