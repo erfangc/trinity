@@ -49,11 +49,11 @@ export default function SignUp() {
             }
 
         } else {
-            const {data, error} = await supabase.auth.signUp({
+            const {error} = await supabase.auth.signUp({
                 email,
                 password,
                 options: {
-                    emailRedirectTo: "http://localhost:63342/trinity/public/confirm-email.html",
+                    emailRedirectTo: "https://trinityprayer.org/confirm-email.html",
                     data: {
                         first_name: firstName,
                         last_name: lastName,
