@@ -1,55 +1,52 @@
 import React, {useEffect, useState} from "react";
-import {Text, TouchableOpacity, View, SafeAreaView, StyleSheet, Alert} from "react-native";
+import {Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
-import {deleteDoc, doc} from "firebase/firestore";
-import {deleteUser} from "firebase/auth";
-import {auth, db} from "@/firebaseConfig";
+import {TextInputField} from "@/components/TextInputField";
+import {supabase} from "@/supabase";
+import {useUser} from "@/hooks/useUser";
+import ChurchSelector from "@/components/ChurchSelector";
 
 export default function Inbox() {
-    const router = useRouter();
-    const [userData, setUserData] = useState<any>(null);
 
+    const router = useRouter();
+    const [firstName, setFirstName] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [churchId, setChurchId] = useState<number>();
+    const user = useUser();
 
     useEffect(() => {
-        const currentUser = auth.currentUser;
-        // Set the user's data if they are logged in
-        if (currentUser) {
-            setUserData({
-                email: currentUser.email,
-                uid: currentUser.uid,
-                displayName: currentUser.displayName || "No display name",
-            });
+        if (user) {
+            setFirstName(user.user_metadata?.first_name || "");
+            setLastName(user.user_metadata?.last_name || "");
+            setChurchId(user.user_metadata?.church_id || undefined);
         }
-    }, []);
+    }, [user]);
 
-
-    const handleDeactivateAccount = async () => {
-        const currentUser = auth.currentUser;
-
-        if (!currentUser) {
-            Alert.alert("Error", "No user is currently signed in.");
+    const handleSave = async () => {
+        if (!user) {
+            Alert.alert("Error", "User is not logged in");
             return;
         }
 
+        const payload: any = {
+            first_name: firstName,
+            last_name: lastName,
+        };
 
-        if (currentUser.isAnonymous) {
-            Alert.alert("Error", "Anonymous users cannot deactivate their account.");
+        if (churchId) {
+            payload['church_id'] = churchId;
+        }
+
+        const {error} = await supabase.auth.updateUser({data: payload});
+
+        if (error) {
+            console.error("Error updating user metadata:", error.message);
+            Alert.alert("Error", error.message);
             return;
         }
 
-        try {
-            // Delete the user's Firestore document
-            await deleteDoc(doc(db, "users", currentUser.uid));
-
-            // Delete the user account
-            await deleteUser(currentUser);
-
-            Alert.alert("Success", "Your account has been deactivated.");
-            router.replace("/sign-in");
-        } catch (error) {
-            Alert.alert("Error", "There was an issue deactivating your account: " + (error instanceof Error ? error.message : "unknown error"));
-        }
+        Alert.alert("Success", "User metadata updated successfully");
     };
 
     return (
@@ -63,19 +60,23 @@ export default function Inbox() {
             </View>
 
             {/* Display User Data */}
-            {userData && (
-                <View style={styles.userInfo}>
-                    <Text style={styles.userInfoText}><Text
-                        style={styles.label}>Email: </Text>{userData.email || "No email"}</Text>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>UID: </Text>{userData.uid}</Text>
-                    <Text style={styles.userInfoText}><Text style={styles.label}>Display
-                        Name: </Text>{userData.displayName}</Text>
+            <View style={styles.userInfo}>
+                <Text style={styles.userInfoText}><Text style={styles.label}>Email: </Text>{user?.email}</Text>
+                <Text style={styles.userInfoText}><Text style={styles.label}>User ID: </Text>{user?.id}</Text>
+                <View style={{marginTop: 16}}>
+                    <TextInputField label={'First Name'} value={firstName} onChangeText={setFirstName}/>
                 </View>
-            )}
+                <TextInputField label={'Last Name'} value={lastName} onChangeText={setLastName}/>
+                <ChurchSelector churchId={churchId} onChange={(churchId) => setChurchId(churchId)}/>
+            </View>
 
-            <TouchableOpacity style={styles.deactivateButton} onPress={handleDeactivateAccount}>
+            <TouchableOpacity style={styles.deactivateButton} onPress={() => null}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Deactivate Account</Text>
             </TouchableOpacity>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={{color: 'white', textAlign: 'center'}}>Handle Save</Text>
+            </TouchableOpacity>
+
         </SafeAreaView>
     );
 }
@@ -91,6 +92,13 @@ const styles = StyleSheet.create({
         backgroundColor: "#D9534F",
         borderRadius: 8,
     },
+    saveButton: {
+        marginTop: 20,
+        marginLeft: 16,
+        padding: 12,
+        backgroundColor: "#3248e3",
+        borderRadius: 8,
+    },
     userInfo: {
         margin: 16,
         padding: 12,
@@ -104,5 +112,6 @@ const styles = StyleSheet.create({
     },
     label: {
         fontWeight: "bold",
+        fontSize: 12
     },
 });

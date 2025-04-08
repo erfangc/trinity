@@ -1,15 +1,17 @@
 import {ImageBackground, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
-import {signOut} from "firebase/auth";
 import React, {useEffect, useState} from "react";
-import {fetchPrayIntentions} from "@/fetchPrayerIntetions";
-import {auth} from "@/firebaseConfig";
 import {PrayerRequestCard} from "@/components/PrayerRequestCard";
 import {NotificationIcon} from "@/components/NotificationIcon";
-import {PrayerIntention} from "@/models";
 import {SettingsIcon} from "@/components/SettingsIcon";
-import {PlayPauseIcon} from "@/components/PlayPauseIcon"; // Expo supports this out of the box
+import {PlayPauseIcon} from "@/components/PlayPauseIcon";
+import {supabase} from "@/supabase";
+import {PrayerIntentionDenormalized} from "@/generated-sdk";
+import * as Notifications from 'expo-notifications';
+import {api} from "@/sdk";
+import {useUser} from "@/hooks/useUser";
+import {handlePushNotificationNavigation} from "@/handlePushNotificationNavigation";
 
 /**
  * A functional component that represents the main landing screen of the application.
@@ -20,28 +22,34 @@ import {PlayPauseIcon} from "@/components/PlayPauseIcon"; // Expo supports this 
  */
 export default function LandingScreen() {
 
-    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
+    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntentionDenormalized[]>([]);
     const router = useRouter();
-
-    const currentUser = auth.currentUser;
+    const user = useUser();
 
     useEffect(() => {
-        if (currentUser && !currentUser.isAnonymous) {
-            return fetchPrayIntentions(7, prayerIntentions => setPrayerIntentions(prayerIntentions));
+        if (user && !user.is_anonymous) {
+            api.getPrayerIntentions().then(resp => setPrayerIntentions(resp.data));
         }
-    }, [currentUser]);
+    }, [user]);
 
     const handleSignOut = () => {
-        signOut(auth)
-            .then(() => router.push('/'))
-            .catch(err => console.log(err));
+        supabase.auth.signOut().then(() => router.push('/'));
     };
 
-    const navigateToPrayerIntention = (prayerIntention: PrayerIntention) => {
+    useEffect(() => {
+        Notifications
+            .getLastNotificationResponseAsync()
+            .then(response => {
+                const data = response?.notification?.request?.content?.data;
+                handlePushNotificationNavigation(data);
+            });
+    }, []);
+
+    const navigateToPrayerIntention = (prayerIntention: PrayerIntentionDenormalized) => {
         router.push(`/prayer-intentions/${prayerIntention.id}`);
     };
 
-    const emptyStateMessage = currentUser?.isAnonymous
+    const emptyStateMessage = user?.is_anonymous
         ? "Other people's prayer intentions will appear here. You can only pray for them if you sign up."
         : "There are currently no prayer intentions available. Please check back later!";
 
@@ -63,7 +71,7 @@ export default function LandingScreen() {
                 {prayerIntentions.map(prayerIntention => (
                     <PrayerRequestCard
                         key={prayerIntention.id}
-                        name={prayerIntention.from}
+                        prayerIntention={prayerIntention}
                         onPress={() => navigateToPrayerIntention(prayerIntention)}
                     />
                 ))}

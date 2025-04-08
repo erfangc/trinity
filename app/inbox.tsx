@@ -2,31 +2,17 @@ import {SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-nati
 import {Ionicons} from "@expo/vector-icons";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
-import {collection, onSnapshot, orderBy, query, where} from "firebase/firestore";
-import {auth, db} from "@/firebaseConfig";
-import {PrayerIntention} from "@/models";
+import {PrayerIntentionDenormalized} from "@/generated-sdk";
+import {api} from "@/sdk";
 
 export default function Inbox() {
 
     const router = useRouter();
-    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntention[]>([]);
+    const [prayerIntentions, setPrayerIntentions] = useState<PrayerIntentionDenormalized[]>([]);
 
     useEffect(() => {
-        onSnapshot(
-            query(
-                collection(db, "prayerIntentions"),
-                where("userId", "==", auth.currentUser?.uid),
-                orderBy("creationDate", "asc"),
-            ),
-            snapshot => {
-                const data = snapshot.docs.map(doc => {
-                    return {
-                        id: doc.id,
-                        ...doc.data()
-                    } as PrayerIntention;
-                });
-                setPrayerIntentions(data);
-            }
+        api.getMyPrayerIntentions().then(resp =>
+            setPrayerIntentions(resp.data)
         );
     }, []);
 
@@ -54,7 +40,7 @@ export default function Inbox() {
                             }
                         }
                     >
-                        <Text style={{color: '#B3B3B3'}}>"{prayerIntention.description}"</Text>
+                        <Text style={{color: '#B3B3B3'}}>"{prayerIntention.intentionText}"</Text>
                     </TouchableOpacity>
                 )
             }

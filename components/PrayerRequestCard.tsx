@@ -1,12 +1,13 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import React from "react";
 import {MaterialIcons} from "@expo/vector-icons";
+import {PrayerIntentionDenormalized} from "@/generated-sdk";
 
-export const PrayerRequestCard: React.FC<{ name: string, onPress: () => void }> = ({name, onPress}) => {
+export const PrayerRequestCard: React.FC<{ prayerIntention: PrayerIntentionDenormalized, onPress: () => void }> = ({prayerIntention, onPress}) => {
     return (
         <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={{marginHorizontal: 12}}>
             <View style={styles.overlay}>
-                <Text style={styles.text}>{name} requested A Prayer</Text>
+                <Text style={styles.text}>{prayerIntention?.creator?.firstName} requested prayer intention</Text>
                 <MaterialIcons name="chevron-right" size={24} color="#FFD700" style={styles.icon}/>
             </View>
         </TouchableOpacity>

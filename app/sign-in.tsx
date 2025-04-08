@@ -1,37 +1,41 @@
-import React, {useState} from "react";
-import {Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, TouchableOpacity, View,} from "react-native";
+import React, {useRef, useState} from "react";
+import {
+    Alert,
+    KeyboardAvoidingView,
+    Platform,
+    ScrollView,
+    StyleSheet,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {TextInputField} from "@/components/TextInputField";
 import CtaButton from "@/components/CtaButton";
-import {signInWithEmailAndPassword} from "firebase/auth"; // Import Firebase sign-in function
-import {auth} from "@/firebaseConfig"; // Import Firebase auth instance
 import {useRouter} from "expo-router";
+import {supabase} from "@/supabase";
 
 export default function SignIn() {
 
-    const [username, setUsername] = useState(""); // Email
+    const [email, setEmail] = useState(""); // Email
     const [password, setPassword] = useState("");
     const router = useRouter();
+
+    const passwordInputRef = useRef<TextInput>(null); // Ref for the password input
 
     const signIn = async (username: string, password: string) => {
         if (!username || !password) {
             Alert.alert("Error", "Please fill in all required fields.");
             return;
         }
-
-        try {
-            // Try to sign in the user with the provided credentials
-            const userCredential = await signInWithEmailAndPassword(auth, username, password);
-            const user = userCredential.user;
-            router.push("/landing");
-        } catch (error: any) {
-            console.error("Error signing in: ", error.message);
+        const {error} = await supabase.auth.signInWithPassword({email: username, password});
+        if (error) {
             Alert.alert("Error", error.message || "Failed to sign in. Please try again.");
         }
     };
 
     const handleSignIn = async () => {
-        await signIn(username, password);
+        await signIn(email, password);
     };
 
     return (
@@ -46,14 +50,16 @@ export default function SignIn() {
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={{gap: 6, marginBottom: 24}}>
                         <TextInputField
-                            label="Username (Email)"
+                            label="Email"
                             placeholder="ex: johndoe123@example.com"
-                            value={username}
+                            value={email}
                             autoCapitalize="none"
-                            autoComplete="username"
+                            autoComplete="email"
                             importantForAutofill="yes"
-                            textContentType="username"
-                            onChangeText={setUsername}
+                            textContentType="emailAddress"
+                            returnKeyType="next"
+                            onSubmitEditing={() => passwordInputRef.current?.focus()}
+                            onChangeText={setEmail}
                         />
                         <TextInputField
                             label="Password"
@@ -63,11 +69,12 @@ export default function SignIn() {
                             importantForAutofill="yes"
                             textContentType="password"
                             value={password}
+                            ref={passwordInputRef}
+                            onSubmitEditing={handleSignIn}
                             onChangeText={setPassword}
                         />
                     </View>
 
-                    {/* Submit Button */}
                     <View>
                         <CtaButton title="Sign In" onPress={handleSignIn}/>
                     </View>
@@ -89,7 +96,7 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flexGrow: 1,
-        justifyContent: "flex-end", // Ensures UI component alignment
+        justifyContent: "flex-end",
     },
     backButton: {
         position: "absolute",

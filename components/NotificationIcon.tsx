@@ -1,23 +1,14 @@
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import React, {useEffect, useState} from "react";
-import {collection, getCountFromServer, query, where} from "firebase/firestore";
-import {auth, db} from "@/firebaseConfig";
+import React, {useState} from "react";
 import {useRouter} from "expo-router";
 
 export const NotificationIcon = () => {
 
     const [count, setCount] = useState(0);
-    const currentUser = auth.currentUser;
     const router = useRouter();
 
-    useEffect(() => {
-        if (!currentUser) {
-            return;
-        }
-        const q = query(collection(db, "prayerIntentions"), where("userId", "==", currentUser.uid));
-        getCountFromServer(q).then(value => setCount(value.data().count));
-    }, [currentUser]);
+    // TODO figure out if there is a notification
 
     return (
         <View style={styles.container}>

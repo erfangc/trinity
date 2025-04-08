@@ -19,7 +19,7 @@ expo-env.d.ts
 
 # Metro
 .metro-health-check*
-
+.env
 # debug
 npm-debug.*
 yarn-debug.*
@@ -37,3 +37,5 @@ yarn-error.*
 
 app-example
 .firebase/hosting.*.cache
+
+.idea

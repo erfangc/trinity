@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import {
     Alert,
     KeyboardAvoidingView,
@@ -13,48 +13,31 @@ import {
 import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/CtaButton";
 import {useRouter} from "expo-router";
-import {addPrayIntention} from "@/addPrayerIntention";
-import getUser from "@/getUser"; // For the back arrow icon
+import {api} from "@/sdk";
 
 export function CreatePrayerIntentionScreen() {
 
     const router = useRouter();
-    const [prayIntentionMessage, setPrayIntentionMessage] = useState('');
-    const [name, setName] = useState<string>();
-
-    useEffect(() => {
-        getUser()
-            .then(user => {
-                if (user !== undefined) {
-                    setName(user.name ?? user.firstName);
-                } else {
-
-                }
-            })
-            .catch(error => {
-                console.error("Error getting user: ", error);
-            });
-    }, []);
+    const [intentText, setIntentText] = useState('');
 
     const handleSubmit = async () => {
-        if (!prayIntentionMessage.trim()) {
+        if (!intentText.trim()) {
             Alert.alert("Error", "Please enter a prayer intention.");
             return;
         }
 
         try {
-            await addPrayIntention({from: name!!, description: prayIntentionMessage});
+            await api.createPrayerIntention({intentText});
             Alert.alert(
                 "Submitted",
                 "Your prayer intention has been submitted. We will notify you when a fellow member prays for you."
             );
-
             // Clear the input field after submission
-            setPrayIntentionMessage('');
-            router.back();
+            setIntentText('');
+            router.navigate("/landing");
         } catch (error) {
+            console.error(error);
             Alert.alert("Error", "Failed to submit prayer intention.");
-            console.error("Error adding document: ", error);
         }
     };
 
@@ -78,8 +61,8 @@ export function CreatePrayerIntentionScreen() {
                             style={styles.input}
                             placeholder="Enter your prayer intention here. This can be anything you wish to share about your current situation in life"
                             placeholderTextColor="#B0B0B0"
-                            value={prayIntentionMessage}
-                            onChangeText={setPrayIntentionMessage}
+                            value={intentText}
+                            onChangeText={setIntentText}
                             multiline
                         />
                     </View>
@@ -92,7 +75,7 @@ export function CreatePrayerIntentionScreen() {
             </KeyboardAvoidingView>
         </View>
     );
-};
+}
 
 // Styles
 const styles = StyleSheet.create({
