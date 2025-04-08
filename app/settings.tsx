@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from "react";
-import {Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useRef, useState} from "react";
+import {Alert, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
 import {TextInputField} from "@/components/TextInputField";
 import {supabase} from "@/supabase";
 import {useUser} from "@/hooks/useUser";
+import { Modalize } from "react-native-modalize";
 
 export default function Inbox() {
 
@@ -12,6 +13,8 @@ export default function Inbox() {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const user = useUser();
+
+    const bottomSheetRef = useRef<Modalize>(null); // Reference to Modalize (Bottom Sheet)
 
     useEffect(() => {
         if (user) {
@@ -44,6 +47,25 @@ export default function Inbox() {
         Alert.alert("Success", "User metadata updated successfully");
     };
 
+    const renderModalizeContent = () => (
+        <View style={styles.bottomSheetContainer}>
+            <Text style={styles.bottomSheetTitle}>Update Information</Text>
+            <TextInput
+                style={styles.inputField}
+                placeholder="Enter new value"
+                value={''}
+                onChangeText={() => null}
+                placeholderTextColor="#888"
+            />
+            <TouchableOpacity
+                style={styles.bottomSheetButton}
+                onPress={() => Alert.alert("Success", "Button Pressed!")}
+            >
+                <Text style={{ color: "white", textAlign: "center" }}>Save</Text>
+            </TouchableOpacity>
+        </View>
+    );
+
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#221F1F"}}>
             <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
@@ -70,6 +92,23 @@ export default function Inbox() {
             <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
                 <Text style={{color: 'white', textAlign: 'center'}}>Handle Save</Text>
             </TouchableOpacity>
+
+            {/* Open Bottom Sheet Button */}
+            <TouchableOpacity
+                style={styles.deactivateButton}
+                onPress={() => bottomSheetRef.current?.open()}
+            >
+                <Text style={{ color: "white", textAlign: "center" }}>Open Bottom Sheet</Text>
+            </TouchableOpacity>
+
+            {/* Bottom Sheet */}
+            <Modalize
+                ref={bottomSheetRef}
+                snapPoint={300} // Height of the Bottom Sheet
+                modalStyle={{ backgroundColor: "#333" }}
+            >
+                {renderModalizeContent()}
+            </Modalize>
         </SafeAreaView>
     );
 }
@@ -106,5 +145,29 @@ const styles = StyleSheet.create({
     label: {
         fontWeight: "bold",
         fontSize: 12
+    },
+    bottomSheetContainer: {
+        padding: 16,
+        backgroundColor: "#333",
+        flex: 1,
+    },
+    bottomSheetTitle: {
+        color: "white",
+        fontSize: 20,
+        fontWeight: "bold",
+        marginBottom: 12,
+    },
+    inputField: {
+        backgroundColor: "#444",
+        borderRadius: 8,
+        padding: 12,
+        color: "white",
+        marginBottom: 16,
+    },
+    bottomSheetButton: {
+        marginTop: 20,
+        padding: 12,
+        backgroundColor: "#3248e3",
+        borderRadius: 8,
     },
 });

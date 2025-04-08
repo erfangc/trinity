@@ -42,8 +42,8 @@ class TrinityPrayerController(
     }
 
     @GetMapping("churches")
-    fun getChurches(): List<Church> {
-        return churchService.getChurches()
+    fun getChurches(@RequestParam(required = false) searchTerm: String? = null): List<Church> {
+        return churchService.getChurches(searchTerm = searchTerm)
     }
 
 }

@@ -12,6 +12,7 @@ import {UserContextProvider} from '@/context/UserContextProvider';
 import '@/environment';
 import {supabase} from "@/supabase";
 import {handlePushNotificationNavigation} from "@/handlePushNotificationNavigation";
+import { GestureHandlerRootView } from "react-native-gesture-handler"; // Import the wrapper
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -68,22 +69,24 @@ export default function RootLayout() {
     return (
 
         <GregorianChantContextProvider>
-            <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                <StatusBar barStyle="light-content"/>
-                <UserContextProvider>
-                    <Stack screenOptions={{headerShown: false}}>
-                        <Stack.Screen name="index"/>
-                        <Stack.Screen name="landing"/>
-                        <Stack.Screen name="sign-up"/>
-                        <Stack.Screen name="sign-in"/>
-                        <Stack.Screen name="inbox"/>
-                        <Stack.Screen name="settings"/>
-                        <Stack.Screen name="create-prayer-intention"/>
-                        <Stack.Screen name="prayer-intentions/:id"/>
-                        <Stack.Screen name="+not-found"/>
-                    </Stack>
-                </UserContextProvider>
-            </ThemeProvider>
+            <GestureHandlerRootView style={{flex: 1}}>
+                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                    <StatusBar barStyle="light-content"/>
+                    <UserContextProvider>
+                        <Stack screenOptions={{headerShown: false}}>
+                            <Stack.Screen name="index"/>
+                            <Stack.Screen name="landing"/>
+                            <Stack.Screen name="sign-up"/>
+                            <Stack.Screen name="sign-in"/>
+                            <Stack.Screen name="inbox"/>
+                            <Stack.Screen name="settings"/>
+                            <Stack.Screen name="create-prayer-intention"/>
+                            <Stack.Screen name="prayer-intentions/:id"/>
+                            <Stack.Screen name="+not-found"/>
+                        </Stack>
+                    </UserContextProvider>
+                </ThemeProvider>
+            </GestureHandlerRootView>
         </GregorianChantContextProvider>
     );
 }
