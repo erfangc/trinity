@@ -10,7 +10,7 @@ export default ({ config }: ConfigContext): ExpoConfig => {
         icon: "./assets/images/icon.png",
         scheme: "trinity",
         userInterfaceStyle: "automatic",
-        newArchEnabled: true,
+        newArchEnabled: false,
         ios: {
             supportsTablet: false,
             bundleIdentifier: "org.trinity.prayers.app",
