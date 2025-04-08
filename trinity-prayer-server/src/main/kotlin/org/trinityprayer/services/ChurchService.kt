@@ -16,7 +16,7 @@ class ChurchService(
         return namedParameterJdbcTemplate
             .queryForObject(
                 """
-                SELECT * FROM churches WHERE id = :church_id 
+                SELECT * FROM public.churches WHERE id = :church_id 
                 """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("church_id", churchId),
