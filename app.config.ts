@@ -36,9 +36,8 @@ export default ({ config }: ConfigContext): ExpoConfig => {
                 "expo-splash-screen",
                 {
                     image: "./assets/images/background.png",
-                    imageWidth: 200,
                     resizeMode: "contain",
-                    backgroundColor: "#ffffff",
+                    backgroundColor: "#000",
                 },
             ],
             "expo-secure-store",

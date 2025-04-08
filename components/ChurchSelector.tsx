@@ -1,5 +1,4 @@
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {Modalize} from "react-native-modalize";
 import React, {useEffect, useRef, useState} from "react";
 import {TextInputField} from "@/components/TextInputField";
 import {Church} from "@/generated-sdk";
@@ -13,7 +12,7 @@ interface Props {
 
 export default function ChurchSelector({churchId, onChange}: Props) {
 
-    const bottomSheetRef = useRef<Modalize>(null);
+    const bottomSheetRef = useRef<any>(null);
 
     const [selected, setSelected] = useState<Church>();
     const [churches, setChurches] = useState<Church[]>([]);
@@ -52,35 +51,35 @@ export default function ChurchSelector({churchId, onChange}: Props) {
                 </Text>
                 <Ionicons name="caret-down" color="white"/>
             </TouchableOpacity>
-            <Modalize
-                ref={bottomSheetRef}
-                modalStyle={{backgroundColor: "#333"}}
-            >
-                <View style={styles.bottomSheetContainer}>
-                    <TextInputField
-                        label="Search"
-                        placeholder="e.g. St Gabriel the Archangel"
-                        value={''}
-                        onChangeText={() => null}
-                        placeholderTextColor="#888"
-                    />
+            {/*<Modalize*/}
+            {/*    ref={bottomSheetRef}*/}
+            {/*    modalStyle={{backgroundColor: "#333"}}*/}
+            {/*>*/}
+            {/*    <View style={styles.bottomSheetContainer}>*/}
+            {/*        <TextInputField*/}
+            {/*            label="Search"*/}
+            {/*            placeholder="e.g. St Gabriel the Archangel"*/}
+            {/*            value={''}*/}
+            {/*            onChangeText={() => null}*/}
+            {/*            placeholderTextColor="#888"*/}
+            {/*        />*/}
 
-                    <ScrollView style={{marginTop: 16}}>
-                        {
-                            churches.map(church => (
-                                <TouchableOpacity
-                                    style={{marginLeft: 10}}
-                                    key={church.id}
-                                    onPress={() => selectChurch(church)}
-                                >
-                                    <Text style={styles.textNormal}>{church.name}</Text>
-                                    <Text style={{...styles.textNormal, color: '#939393'}}>{church.vicinity}</Text>
-                                </TouchableOpacity>
-                            ))
-                        }
-                    </ScrollView>
-                </View>
-            </Modalize>
+            {/*        <ScrollView style={{marginTop: 16}}>*/}
+            {/*            {*/}
+            {/*                churches.map(church => (*/}
+            {/*                    <TouchableOpacity*/}
+            {/*                        style={{marginLeft: 10}}*/}
+            {/*                        key={church.id}*/}
+            {/*                        onPress={() => selectChurch(church)}*/}
+            {/*                    >*/}
+            {/*                        <Text style={styles.textNormal}>{church.name}</Text>*/}
+            {/*                        <Text style={{...styles.textNormal, color: '#939393'}}>{church.vicinity}</Text>*/}
+            {/*                    </TouchableOpacity>*/}
+            {/*                ))*/}
+            {/*            }*/}
+            {/*        </ScrollView>*/}
+            {/*    </View>*/}
+            {/*</Modalize>*/}
         </>
 
     );
