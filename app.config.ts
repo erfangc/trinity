@@ -1,5 +1,4 @@
 import {ConfigContext, ExpoConfig} from "@expo/config";
-import "dotenv/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => {
     return {
@@ -52,9 +51,6 @@ export default ({ config }: ConfigContext): ExpoConfig => {
             eas: {
                 projectId: "e5ba8825-1c82-4044-b3c2-8d365424a935",
             },
-            SUPABASE_URL: process.env.SUPABASE_URL,
-            TRINITY_API_URL: process.env.TRINITY_API_URL,
-            SUPABASE_ANON_KEY: process.env.SUPABASE_ANON_KEY,
         },
         owner: "erfangc",
     };
