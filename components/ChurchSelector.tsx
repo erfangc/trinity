@@ -54,7 +54,6 @@ export default function ChurchSelector({churchId, onChange}: Props) {
             </TouchableOpacity>
             <Modalize
                 ref={bottomSheetRef}
-                snapPoint={500}
                 modalStyle={{backgroundColor: "#333"}}
             >
                 <View style={styles.bottomSheetContainer}>
