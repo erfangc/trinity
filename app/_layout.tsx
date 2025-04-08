@@ -4,7 +4,6 @@ import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {ActivityIndicator, StatusBar, StyleSheet, View} from 'react-native';
 import {useEffect, useRef} from 'react';
-import 'react-native-reanimated';
 import * as Notifications from 'expo-notifications';
 import {useColorScheme} from '@/hooks/useColorScheme';
 import {GregorianChantContextProvider} from "@/context/GregorianChantContext";
