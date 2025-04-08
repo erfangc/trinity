@@ -46,4 +46,9 @@ class TrinityPrayerController(
         return churchService.getChurches(searchTerm = searchTerm)
     }
 
+    @GetMapping("churches/{churchId}")
+    fun getChurch(@PathVariable churchId: Long): Church {
+        return churchService.getChurch(churchId = churchId)
+    }
+
 }

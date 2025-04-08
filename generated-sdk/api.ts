@@ -65,6 +65,12 @@ export interface Church {
      * @memberof Church
      */
     'longitude'?: number;
+    /**
+     * 
+     * @type {string}
+     * @memberof Church
+     */
+    'vicinity'?: string;
 }
 /**
  * 
@@ -297,10 +303,44 @@ export const TrinityPrayerControllerApiAxiosParamCreator = function (configurati
         },
         /**
          * 
+         * @param {number} churchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getChurches: async (options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+        getChurch: async (churchId: number, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'churchId' is not null or undefined
+            assertParamExists('getChurch', 'churchId', churchId)
+            const localVarPath = `/api/v1/churches/{churchId}`
+                .replace(`{${"churchId"}}`, encodeURIComponent(String(churchId)));
+            // use dummy base URL string because the URL constructor only accepts absolute URLs.
+            const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
+            let baseOptions;
+            if (configuration) {
+                baseOptions = configuration.baseOptions;
+            }
+
+            const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
+            const localVarHeaderParameter = {} as any;
+            const localVarQueryParameter = {} as any;
+
+
+    
+            setSearchParams(localVarUrlObj, localVarQueryParameter);
+            let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
+            localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
+
+            return {
+                url: toPathString(localVarUrlObj),
+                options: localVarRequestOptions,
+            };
+        },
+        /**
+         * 
+         * @param {string} [searchTerm] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getChurches: async (searchTerm?: string, options: RawAxiosRequestConfig = {}): Promise<RequestArgs> => {
             const localVarPath = `/api/v1/churches`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -312,6 +352,10 @@ export const TrinityPrayerControllerApiAxiosParamCreator = function (configurati
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (searchTerm !== undefined) {
+                localVarQueryParameter['searchTerm'] = searchTerm;
+            }
 
 
     
@@ -451,11 +495,24 @@ export const TrinityPrayerControllerApiFp = function(configuration?: Configurati
         },
         /**
          * 
+         * @param {number} churchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async getChurches(options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Church>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.getChurches(options);
+        async getChurch(churchId: number, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Church>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getChurch(churchId, options);
+            const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
+            const localVarOperationServerBasePath = operationServerMap['TrinityPrayerControllerApi.getChurch']?.[localVarOperationServerIndex]?.url;
+            return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
+        },
+        /**
+         * 
+         * @param {string} [searchTerm] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        async getChurches(searchTerm?: string, options?: RawAxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<Church>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.getChurches(searchTerm, options);
             const localVarOperationServerIndex = configuration?.serverIndex ?? 0;
             const localVarOperationServerBasePath = operationServerMap['TrinityPrayerControllerApi.getChurches']?.[localVarOperationServerIndex]?.url;
             return (axios, basePath) => createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration)(axios, localVarOperationServerBasePath || basePath);
@@ -524,11 +581,21 @@ export const TrinityPrayerControllerApiFactory = function (configuration?: Confi
         },
         /**
          * 
+         * @param {number} churchId 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        getChurches(options?: RawAxiosRequestConfig): AxiosPromise<Array<Church>> {
-            return localVarFp.getChurches(options).then((request) => request(axios, basePath));
+        getChurch(churchId: number, options?: RawAxiosRequestConfig): AxiosPromise<Church> {
+            return localVarFp.getChurch(churchId, options).then((request) => request(axios, basePath));
+        },
+        /**
+         * 
+         * @param {string} [searchTerm] 
+         * @param {*} [options] Override http request option.
+         * @throws {RequiredError}
+         */
+        getChurches(searchTerm?: string, options?: RawAxiosRequestConfig): AxiosPromise<Array<Church>> {
+            return localVarFp.getChurches(searchTerm, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -589,12 +656,24 @@ export class TrinityPrayerControllerApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} churchId 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof TrinityPrayerControllerApi
      */
-    public getChurches(options?: RawAxiosRequestConfig) {
-        return TrinityPrayerControllerApiFp(this.configuration).getChurches(options).then((request) => request(this.axios, this.basePath));
+    public getChurch(churchId: number, options?: RawAxiosRequestConfig) {
+        return TrinityPrayerControllerApiFp(this.configuration).getChurch(churchId, options).then((request) => request(this.axios, this.basePath));
+    }
+
+    /**
+     * 
+     * @param {string} [searchTerm] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof TrinityPrayerControllerApi
+     */
+    public getChurches(searchTerm?: string, options?: RawAxiosRequestConfig) {
+        return TrinityPrayerControllerApiFp(this.configuration).getChurches(searchTerm, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**

@@ -27,13 +27,6 @@ export default function LandingScreen() {
     const user = useUser();
 
     useEffect(() => {
-        supabase.auth.getSession().then(resp => {
-            console.log(resp.data.session?.access_token);
-            console.log(resp.data.session?.refresh_token);
-        });
-    }, []);
-
-    useEffect(() => {
         if (user && !user.is_anonymous) {
             api.getPrayerIntentions().then(resp => setPrayerIntentions(resp.data));
         }

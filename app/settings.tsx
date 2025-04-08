@@ -1,25 +1,25 @@
-import React, {useEffect, useRef, useState} from "react";
-import {Alert, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useState} from "react";
+import {Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
 import {TextInputField} from "@/components/TextInputField";
 import {supabase} from "@/supabase";
 import {useUser} from "@/hooks/useUser";
-import { Modalize } from "react-native-modalize";
+import ChurchSelector from "@/components/ChurchSelector";
 
 export default function Inbox() {
 
     const router = useRouter();
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
+    const [churchId, setChurchId] = useState<number>();
     const user = useUser();
-
-    const bottomSheetRef = useRef<Modalize>(null); // Reference to Modalize (Bottom Sheet)
 
     useEffect(() => {
         if (user) {
             setFirstName(user.user_metadata?.first_name || "");
             setLastName(user.user_metadata?.last_name || "");
+            setChurchId(user.user_metadata?.church_id || undefined);
         }
     }, [user]);
 
@@ -29,14 +29,16 @@ export default function Inbox() {
             return;
         }
 
-        const { data, error } = await supabase
-            .auth
-            .updateUser({
-                data: {
-                    first_name: firstName,
-                    last_name: lastName,
-                }
-            });
+        const payload: any = {
+            first_name: firstName,
+            last_name: lastName,
+        };
+
+        if (churchId) {
+            payload['church_id'] = churchId;
+        }
+
+        const {error} = await supabase.auth.updateUser({data: payload});
 
         if (error) {
             console.error("Error updating user metadata:", error.message);
@@ -46,25 +48,6 @@ export default function Inbox() {
 
         Alert.alert("Success", "User metadata updated successfully");
     };
-
-    const renderModalizeContent = () => (
-        <View style={styles.bottomSheetContainer}>
-            <Text style={styles.bottomSheetTitle}>Update Information</Text>
-            <TextInput
-                style={styles.inputField}
-                placeholder="Enter new value"
-                value={''}
-                onChangeText={() => null}
-                placeholderTextColor="#888"
-            />
-            <TouchableOpacity
-                style={styles.bottomSheetButton}
-                onPress={() => Alert.alert("Success", "Button Pressed!")}
-            >
-                <Text style={{ color: "white", textAlign: "center" }}>Save</Text>
-            </TouchableOpacity>
-        </View>
-    );
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: "#221F1F"}}>
@@ -84,6 +67,7 @@ export default function Inbox() {
                     <TextInputField label={'First Name'} value={firstName} onChangeText={setFirstName}/>
                 </View>
                 <TextInputField label={'Last Name'} value={lastName} onChangeText={setLastName}/>
+                <ChurchSelector churchId={churchId} onChange={(churchId) => setChurchId(churchId)}/>
             </View>
 
             <TouchableOpacity style={styles.deactivateButton} onPress={() => null}>
@@ -93,22 +77,6 @@ export default function Inbox() {
                 <Text style={{color: 'white', textAlign: 'center'}}>Handle Save</Text>
             </TouchableOpacity>
 
-            {/* Open Bottom Sheet Button */}
-            <TouchableOpacity
-                style={styles.deactivateButton}
-                onPress={() => bottomSheetRef.current?.open()}
-            >
-                <Text style={{ color: "white", textAlign: "center" }}>Open Bottom Sheet</Text>
-            </TouchableOpacity>
-
-            {/* Bottom Sheet */}
-            <Modalize
-                ref={bottomSheetRef}
-                snapPoint={300} // Height of the Bottom Sheet
-                modalStyle={{ backgroundColor: "#333" }}
-            >
-                {renderModalizeContent()}
-            </Modalize>
         </SafeAreaView>
     );
 }
@@ -145,29 +113,5 @@ const styles = StyleSheet.create({
     label: {
         fontWeight: "bold",
         fontSize: 12
-    },
-    bottomSheetContainer: {
-        padding: 16,
-        backgroundColor: "#333",
-        flex: 1,
-    },
-    bottomSheetTitle: {
-        color: "white",
-        fontSize: 20,
-        fontWeight: "bold",
-        marginBottom: 12,
-    },
-    inputField: {
-        backgroundColor: "#444",
-        borderRadius: 8,
-        padding: 12,
-        color: "white",
-        marginBottom: 16,
-    },
-    bottomSheetButton: {
-        marginTop: 20,
-        padding: 12,
-        backgroundColor: "#3248e3",
-        borderRadius: 8,
     },
 });

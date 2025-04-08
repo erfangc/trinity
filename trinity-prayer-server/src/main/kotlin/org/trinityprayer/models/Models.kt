@@ -26,6 +26,7 @@ data class Church(
     val googlePlaceId: String? = null,
     val latitude: Double? = null,
     val longitude: Double? = null,
+    val vicinity: String? = null,
 )
 
 data class PrayerIntentionDenormalized(
