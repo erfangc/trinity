@@ -13,7 +13,6 @@ import {UserContextProvider} from '@/context/UserContextProvider';
 import '@/environment';
 import {supabase} from "@/supabase";
 import {handlePushNotificationNavigation} from "@/handlePushNotificationNavigation";
-import { GestureHandlerRootView } from "react-native-gesture-handler"; // Import the wrapper
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -70,7 +69,7 @@ export default function RootLayout() {
     return (
 
         <GregorianChantContextProvider>
-            <GestureHandlerRootView style={{flex: 1}}>
+            {/*<GestureHandlerRootView style={{flex: 1}}>*/}
                 <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
                     <StatusBar barStyle="light-content"/>
                     <UserContextProvider>
@@ -87,7 +86,7 @@ export default function RootLayout() {
                         </Stack>
                     </UserContextProvider>
                 </ThemeProvider>
-            </GestureHandlerRootView>
+            {/*</GestureHandlerRootView>*/}
         </GregorianChantContextProvider>
     );
 }
