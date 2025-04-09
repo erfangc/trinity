@@ -44,21 +44,14 @@ export default function ChurchSelector({churchId, onChange}: Props) {
     const panResponder = useRef(
         PanResponder.create({
             onMoveShouldSetPanResponder: (_, gestureState) => {
-                console.log(
-                    "onMoveShouldSetPanResponder",
-                    gestureState.dy,
-                    Math.abs(gestureState.dy) > 5
-                )
                 return Math.abs(gestureState.dy) > 5;
             },
             onPanResponderMove: (_, gestureState) => {
-                console.log("onPanResponderMove", gestureState.dy)
                 if (gestureState.dy > 0) {
                     translateY.setValue(gestureState.dy);
                 }
             },
             onPanResponderRelease: (_, gestureState) => {
-                console.log("onPanResponderRelease", gestureState.dy)
                 if (gestureState.dy > 100) {
                     // Animate out
                     Animated.timing(translateY, {
