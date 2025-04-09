@@ -27,6 +27,10 @@ class UserProvider(private val objectMapper: ObjectMapper) {
         user.set(objectMapper.readValue(decodedPayload))
     }
 
+    fun setUser(input: SupabaseJwtPayload) {
+        user.set(input)
+    }
+
     fun getUser(): SupabaseJwtPayload? {
         return user.get()
     }

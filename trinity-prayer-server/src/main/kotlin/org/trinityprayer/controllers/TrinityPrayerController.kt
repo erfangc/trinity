@@ -1,6 +1,7 @@
 package org.trinityprayer.controllers
 
 import org.springframework.web.bind.annotation.*
+import org.trinityprayer.common.UserProvider
 import org.trinityprayer.models.Church
 import org.trinityprayer.models.CreatePrayerIntentionRequest
 import org.trinityprayer.models.PrayerIntention
@@ -14,6 +15,8 @@ class TrinityPrayerController(
     private val prayerIntentionsService: PrayerIntentionsService,
     private val answerPrayerIntentionService: AnswerPrayerIntentionService,
     private val churchService: ChurchService,
+    private val churchIngestionService: ChurchIngestionService,
+    private val userProvider: UserProvider,
 ) {
 
     @GetMapping("prayer-intentions")
@@ -51,4 +54,13 @@ class TrinityPrayerController(
         return churchService.getChurch(churchId = churchId)
     }
 
+    @PostMapping("churches")
+    fun ingestChurches(@RequestParam lat: Double, @RequestParam lng: Double) {
+        val user = userProvider.getUser() ?: throw IllegalStateException("User not logged in")
+        if (user.sub == "root") {
+            return churchIngestionService.ingestChurches(lat = lat, lng = lng)
+        } else {
+            throw IllegalStateException("User is not root")
+        }
+    }
 }
