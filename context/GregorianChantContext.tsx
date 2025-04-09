@@ -22,16 +22,15 @@ export const GregorianChantContextProvider: React.FC<{ children: React.ReactNode
             sound.unloadAsync();
         }
 
-        const loadAndPlay = async () => {
+        const load = async () => {
             const { sound } = await Audio.Sound.createAsync(
                 require('../assets/audio/gregorian-chant.mp3'),
-                { shouldPlay: true, isLooping: true }
+                { shouldPlay: false, isLooping: true }
             );
             setSound(sound);
-            setIsPlaying(true);
         };
 
-        loadAndPlay();
+        load();
 
         return () => {
             sound?.unloadAsync();
