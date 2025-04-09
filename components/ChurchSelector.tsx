@@ -15,6 +15,7 @@ export default function ChurchSelector({churchId, onChange}: Props) {
     const [visible, setVisible] = useState(false);
     const [selected, setSelected] = useState<Church>();
     const [churches, setChurches] = useState<Church[]>([]);
+    const [searchTerm, setSearchTerm] = useState('');
 
     useEffect(() => {
         if (churchId) {
@@ -105,25 +106,30 @@ export default function ChurchSelector({churchId, onChange}: Props) {
                         <TextInputField
                             label="Search"
                             placeholder="e.g. St Gabriel the Archangel"
-                            value={''}
-                            onChangeText={() => null}
+                            value={searchTerm}
+                            onChangeText={(value) => setSearchTerm(value)}
                             placeholderTextColor="#888"
                         />
-                        <View style={{marginTop: 16}}>
+                        <View style={{marginTop: 16, gap: 16}}>
                             {
-                                churches.map(church => (
-                                    <TouchableOpacity
-                                        style={{marginLeft: 10}}
-                                        key={church.id}
-                                        onPress={() => selectChurch(church)}
-                                    >
-                                        <Text style={styles.textNormal}>{church.name}</Text>
-                                        <Text style={{
-                                            ...styles.textNormal,
-                                            color: '#939393'
-                                        }}>{church.vicinity}</Text>
-                                    </TouchableOpacity>
-                                ))
+                                churches
+                                    .filter(church=>
+                                        church?.name?.toLowerCase()?.includes(searchTerm.toLowerCase())
+                                    )
+                                    .slice(0, 10)
+                                    .map(church => (
+                                        <TouchableOpacity
+                                            style={{marginLeft: 10}}
+                                            key={church.id}
+                                            onPress={() => selectChurch(church)}
+                                        >
+                                            <Text style={styles.textNormal}>{church.name}</Text>
+                                            <Text style={{
+                                                ...styles.textNormal,
+                                                color: '#939393'
+                                            }}>{church.vicinity}</Text>
+                                        </TouchableOpacity>
+                                    ))
                             }
                         </View>
                     </Animated.View>
