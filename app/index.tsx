@@ -1,10 +1,8 @@
-import {Alert, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, View} from 'react-native';
-import CtaButton from "@/components/CtaButton";
+import {Alert, ImageBackground, SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import {SignInButton} from "@/components/SignInButton";
 import React, {useEffect, useState} from "react";
 import {useRouter} from "expo-router";
 import {SignUpButton} from "@/components/SignUpButton";
-import {OrSeparator} from "@/components/OrSeparator";
 import {PlayPauseIcon} from "@/components/PlayPauseIcon";
 import {supabase} from "@/supabase";
 import {useUser} from "@/hooks/useUser";
@@ -49,25 +47,9 @@ export default function HomeScreen() {
                 </View>
                 <View style={styles.contentContainer}>
                     <View style={styles.overlay}>
-                        <Text style={styles.title}>Login Page</Text>
+                        <Text style={styles.title}>Welcome</Text>
                         <SignInButton/>
                         <SignUpButton/>
-                        <OrSeparator/>
-
-                        {/* Input Field */}
-                        <Text style={styles.label}>Your First Name</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Enter your name"
-                            placeholderTextColor="#D9D9D9"
-                            value={firstName}
-                            onChangeText={(text) => setFirstName(text)}
-                        />
-
-                        {/* Confirm Button */}
-                        <View style={styles.confirmButton}>
-                            <CtaButton title="CONFIRM" onPress={handleSignUpAnonymously}/>
-                        </View>
                     </View>
                 </View>
             </SafeAreaView>
