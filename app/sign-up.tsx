@@ -4,8 +4,8 @@ import {
     KeyboardAvoidingView,
     Platform,
     SafeAreaView,
-    ScrollView,
     StyleSheet,
+    Text,
     TouchableOpacity,
     View,
 } from "react-native";
@@ -130,10 +130,13 @@ export default function SignUp() {
                         value={password}
                         onChangeText={setPassword}
                     />
-                    <ChurchSelector
-                        churchId={churchId}
-                        onChange={setChurchId}
-                    />
+                    <View>
+                        <Text style={styles.label}>Optional</Text>
+                        <ChurchSelector
+                            churchId={churchId}
+                            onChange={setChurchId}
+                        />
+                    </View>
                 </View>
 
                 {/* Submit Button */}
@@ -154,5 +157,8 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: 32,
         marginHorizontal: 16,
+    },
+    label: {
+        color: "#fff",
     },
 });
