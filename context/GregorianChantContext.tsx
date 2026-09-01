@@ -1,5 +1,5 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
-import {Audio} from "expo-av";
+import React, {createContext, useContext} from "react";
+import {useAudioPlayer, useAudioPlayerStatus} from "expo-audio";
 
 type GregorianChatContextType = {
     isPlaying: boolean;
@@ -13,42 +13,23 @@ const GregorianChantContext = createContext<GregorianChatContextType>({
 
 export const useGregorianChant = () => useContext(GregorianChantContext);
 
-export const GregorianChantContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [sound, setSound] = useState<Audio.Sound | null>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+const chantSource = require('../assets/audio/gregorian-chant.mp3');
 
-    useEffect(() => {
-        if (sound) {
-            sound.unloadAsync();
-        }
+export const GregorianChantContextProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
+    const player = useAudioPlayer(chantSource);
+    const status = useAudioPlayerStatus(player);
 
-        const load = async () => {
-            const { sound } = await Audio.Sound.createAsync(
-                require('../assets/audio/gregorian-chant.mp3'),
-                { shouldPlay: false, isLooping: true }
-            );
-            setSound(sound);
-        };
-
-        load();
-
-        return () => {
-            sound?.unloadAsync();
-        };
-    }, []);
-
-    const togglePlayPause = async () => {
-        if (!sound) return;
-        if (isPlaying) {
-            await sound.pauseAsync();
+    const togglePlayPause = () => {
+        if (status.playing) {
+            player.pause();
         } else {
-            await sound.playAsync();
+            player.loop = true;
+            player.play();
         }
-        setIsPlaying(!isPlaying);
     };
 
     return (
-        <GregorianChantContext.Provider value={{ isPlaying, togglePlayPause }}>
+        <GregorianChantContext.Provider value={{isPlaying: status.playing, togglePlayPause}}>
             {children}
         </GregorianChantContext.Provider>
     );

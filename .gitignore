@@ -39,3 +39,7 @@ app-example
 .firebase/hosting.*.cache
 
 .idea
+# store credentials (never commit)
+google-services.json
+GoogleService-Info.plist
+google-service-account.json

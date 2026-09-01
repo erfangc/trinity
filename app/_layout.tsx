@@ -1,6 +1,5 @@
-import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native';
+import {DarkTheme, DefaultTheme, Stack, ThemeProvider} from 'expo-router';
 import {useFonts} from 'expo-font';
-import {Stack} from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import {ActivityIndicator, StatusBar, StyleSheet, View} from 'react-native';
 import {useEffect, useRef} from 'react';
@@ -17,7 +16,8 @@ SplashScreen.preventAutoHideAsync();
 
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
-        shouldShowAlert: true,
+        shouldShowBanner: true,
+        shouldShowList: true,
         shouldPlaySound: false,
         shouldSetBadge: false,
     }),
@@ -37,7 +37,7 @@ export default function RootLayout() {
         }
     }, [loaded]);
 
-    const responseListener = useRef<any>();
+    const responseListener = useRef<Notifications.EventSubscription | null>(null);
 
     useEffect(() => {
         // Listener for when a user interacts with a notification.
@@ -50,8 +50,7 @@ export default function RootLayout() {
         });
 
         return () => {
-            if (responseListener.current)
-                Notifications.removeNotificationSubscription(responseListener.current);
+            responseListener.current?.remove();
         };
     }, []);
 
@@ -79,7 +78,7 @@ export default function RootLayout() {
                             <Stack.Screen name="inbox"/>
                             <Stack.Screen name="settings"/>
                             <Stack.Screen name="create-prayer-intention"/>
-                            <Stack.Screen name="prayer-intentions/:id"/>
+                            <Stack.Screen name="prayer-intentions/[id]"/>
                             <Stack.Screen name="+not-found"/>
                         </Stack>
                     </UserContextProvider>
