@@ -2,24 +2,24 @@
 
 Expo / React Native mobile app (iOS + Android) for sharing parish prayer intentions.
 
-## Architecture rule
+## Architecture
 
-**This is strictly a Firebase mobile app.** The client talks to Firebase directly
-(Auth, Firestore, Cloud Messaging via Expo push). There is no custom backend to
-build, deploy, or extend. Do not add servers, ORMs, Terraform, or generated API
-clients.
+Expo client talking to two backends, both live:
 
-Legacy caveat: the repo still carries a 2025 detour away from Firebase. Treat all
-of this as legacy to be removed, not extended:
+- **Supabase** (`supabase.ts`, `environment.ts`, `context/UserContextProvider.ts`):
+  auth (email/password, anonymous), user metadata (name, church), session storage.
+- **Spring Boot + Postgres** (`trinity-prayer-server/`, deployed to a DigitalOcean
+  droplet at `api.trinityprayer.org`, Terraform in `infrastructure/`): prayer
+  intentions, churches, push notifications via Expo push. The client calls it
+  through the OpenAPI client in `generated-sdk/` (`sdk.ts`, `generate-sdk.sh`,
+  `openapitools.json`), authenticated with the Supabase JWT.
+- `public/` are the static pages on trinityprayer.org (privacy policy, email
+  confirmation), deployed with `deploy-static-files.sh`; `deploy-trinity.sh`
+  redeploys the server.
 
-- `supabase.ts`, `environment.ts`, `context/UserContextProvider.ts` — Supabase auth
-- `sdk.ts`, `generated-sdk/`, `generate-sdk.sh`, `openapitools.json` — OpenAPI client
-- `trinity-prayer-server/` — Spring Boot server; `deploy-*.sh` — its deploy scripts
-- `infrastructure/` — Terraform for a DigitalOcean droplet
-- `public/` — hand-written static pages (privacy policy, email confirm)
-
-Firebase history lives in git (`git log -S firebase`); the Firebase→Supabase move
-was `290cc4d`..`9f131b1`.
+The app started on Firebase and moved to Supabase + Spring in 2025
+(`290cc4d`..`9f131b1`). Firebase is only needed for Android push (FCM); there is
+no plan to move back.
 
 ## Stack
 
