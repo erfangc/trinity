@@ -1,0 +1,151 @@
+# Store Release
+#
+# Fires when app.config.ts changes on main. detect-version-bump compares the
+# `version:` literal at HEAD against the commit main pointed at before the push
+# (the same range the `paths` filter matched on), so a bump buried in the middle
+# of a multi-commit push still counts. Only a real bump (e.g. 1.1.2 -> 1.2.0)
+# queues EAS builds. Builds and store submissions run on EAS servers (--no-wait),
+# so this workflow finishes in a couple of minutes. Follow progress at
+# https://expo.dev/accounts/erfangc/projects/trinity/builds
+#
+# Everything the build and submit need lives on EAS servers, created once with
+# `eas credentials` (iOS distribution cert, provisioning profile, push key,
+# App Store Connect API key, Google service account key). The only secret this
+# workflow needs is EXPO_TOKEN, a personal access token for the erfangc Expo
+# account: https://expo.dev/accounts/erfangc/settings/access-tokens
+#
+# Platforms: the RELEASE_PLATFORM repository variable (all | ios | android)
+# picks what a version bump releases; it defaults to ios until the Play Console
+# side is configured. Manual dispatch can override it and builds + submits
+# without a version bump (EAS autoIncrement assigns a fresh build number, so
+# re-runs are safe).
+
+name: Store Release
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'app.config.ts'
+  workflow_dispatch:
+    inputs:
+      platform:
+        description: 'Platform to build and submit'
+        required: true
+        type: choice
+        default: ios
+        options:
+          - all
+          - ios
+          - android
+
+# One release pipeline at a time; a second bump queues behind the first rather
+# than racing it.
+concurrency:
+  group: store-release
+  cancel-in-progress: false
+
+jobs:
+
+  detect-version-bump:
+    name: Detect Version Bump
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+    outputs:
+      bumped: ${{ steps.compare.outputs.bumped }}
+      version: ${{ steps.compare.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The comparison reaches back to whatever main pointed at before this
+          # push, so the history cannot be shallow.
+          fetch-depth: 0
+
+      - name: Compare version literal against the commit this push started from
+        id: compare
+        run: |
+          extract() { grep -oE 'version: "[0-9]+\.[0-9]+\.[0-9]+"' | head -1 | grep -oE "[0-9]+\.[0-9]+\.[0-9]+"; }
+          CURRENT=$(extract < app.config.ts)
+          if [ -z "$CURRENT" ]; then
+            echo "::error::Could not find version literal in app.config.ts — did its format change?"
+            exit 1
+          fi
+          # github.event.before is the branch tip the push replaced. A new branch
+          # (all-zero before) or a rewritten history (before no longer reachable)
+          # yields "none", which counts as a bump — better a redundant build
+          # than a missed release.
+          BEFORE="${{ github.event.before }}"
+          case "$BEFORE" in
+            0000000000000000000000000000000000000000) PREVIOUS="none" ;;
+            *) PREVIOUS=$(git show "$BEFORE:app.config.ts" 2>/dev/null | extract || echo "none") ;;
+          esac
+          echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
+          if [ "$CURRENT" != "$PREVIOUS" ]; then
+            echo "bumped=true" >> "$GITHUB_OUTPUT"
+            echo "Version bump detected across this push: $PREVIOUS -> $CURRENT"
+          else
+            echo "bumped=false" >> "$GITHUB_OUTPUT"
+            echo "app.config.ts changed but version is still $CURRENT — skipping release"
+          fi
+
+  eas-build-and-submit:
+    name: EAS Build + Auto-Submit
+    runs-on: ubuntu-latest
+    needs: [detect-version-bump]
+    # Runs on a confirmed bump, or always on manual dispatch (the detect job is
+    # skipped for workflow_dispatch, hence the always()).
+    if: always() && (github.event_name == 'workflow_dispatch' || needs.detect-version-bump.outputs.bumped == 'true')
+    env:
+      PLATFORM: ${{ github.event.inputs.platform || vars.RELEASE_PLATFORM || 'ios' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      # Installs eas-cli and exports EXPO_TOKEN so every eas command is
+      # authenticated as erfangc without an interactive login.
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        # eas-cli evaluates app.config.ts locally before uploading the project,
+        # so node_modules must exist even though the build itself is remote.
+        run: npm ci
+
+      - name: Typecheck
+        # Cheap guard so a bump never ships a bundle that does not compile.
+        run: npm run typecheck
+
+      - name: Build and submit (fire-and-forget)
+        run: |
+          eas build \
+            --platform "$PLATFORM" \
+            --profile production \
+            --auto-submit \
+            --non-interactive \
+            --no-wait
+
+      - name: Push store metadata
+        # Syncs store.config.json (description, keywords, screenshots, age
+        # rating, release options) to App Store Connect for the version being
+        # built. Requires the App Store Connect API key stored on EAS.
+        if: env.PLATFORM != 'android'
+        run: eas metadata:push --non-interactive
+
+      - name: Post release summary
+        run: |
+          {
+            echo "## Store Release"
+            echo ""
+            echo "- **Version**: ${{ needs.detect-version-bump.outputs.version || 'manual dispatch' }}"
+            echo "- **Platform**: $PLATFORM"
+            echo "- **Builds & logs**: https://expo.dev/accounts/erfangc/projects/trinity/builds"
+            echo "- Builds run on EAS servers — this workflow does not wait for them."
+            echo "- When the build lands in App Store Connect, open the version and press Add for Review."
+          } >> "$GITHUB_STEP_SUMMARY"

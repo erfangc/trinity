@@ -47,10 +47,10 @@
     "production": {
       "ios": {
         "ascAppId": "6807541061",
-        "appleTeamId": "DPT5Y32WM4"
+        "appleTeamId": "DPT5Y32WM4",
+        "metadataPath": "./store.config.js"
       },
       "android": {
-        "serviceAccountKeyPath": "./google-service-account.json",
         "track": "internal",
         "releaseStatus": "draft"
       }

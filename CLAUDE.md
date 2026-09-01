@@ -80,20 +80,53 @@ Prayer Inc; `eas.json` submit profile points at it. The App Store name
 "Trinity Prayers (legacy)"; Apple refuses to remove it while that membership
 is expired), so the app is now called Pray Trinity in `app.config.ts` too.
 
-Still open before the first submit:
+## Release pipeline
 
-- Distribution is United States only and the app is free. Ignore the EU Digital
-  Services Act trader-status banner in App Store Connect; it only matters for EU
-  availability.
-- Signing and push key: `eas build -p ios -e production` creates them via Apple
-  login, or `eas credentials`. Nothing from the old Trendi team is reusable.
-- Android: `google-service-account.json` (Play Console service account) in the
-  repo root, ignored by git. First Play upload must be done by hand.
-- Push on Android: `google-services.json` from the Firebase console in the repo
+`.github/workflows/store-release.yml` runs on every push to `main` that touches
+`app.config.ts`. If the `version` literal changed it runs `eas build --profile
+production --auto-submit` on EAS servers and then `eas metadata:push`, so a
+release is: bump `version` in `app.config.ts`, merge to `main`, and press
+"Add for Review" in App Store Connect once the build has processed. Manual
+dispatch of the workflow builds without a bump. The `RELEASE_PLATFORM` repo
+variable (`ios` today) chooses the platforms; flip it to `all` once Play is set
+up. The only GitHub secret is `EXPO_TOKEN` (an erfangc Expo access token).
+
+Everything else lives on EAS servers, created once with `eas credentials`:
+
+- iOS distribution certificate + App Store provisioning profile
+- APNs push key
+- App Store Connect API key (used by `eas submit` and `eas metadata`)
+- Google service account key for Play (`eas credentials -p android`)
+
+Store listing text, keywords, category, age rating, release options and the
+screenshot list live in `store.config.js` (EAS Metadata). It reads the version
+from `app.config.ts` so the App Store version record always matches the build.
+`npm run metadata:push` syncs it by hand; `eas metadata:lint` validates it.
+
+Store images:
+
+```bash
+npm run ios                      # one-time: build + install the dev client on the simulator
+npx expo start --port 8083       # keep running in another terminal
+npm run capture:ios              # 1320x2868 captures -> store-assets/ios/
+npm run store-assets             # icons, Play feature graphic, Play screenshots
+```
+
+`capture:ios` uses Facebook's idb to dismiss the iOS deep-link prompt; see the
+header of `scripts/capture-ios-screenshots.mjs`.
+
+Still open on the user side:
+
+- App Store Connect > App Review: contact name/phone and a demo account for the
+  reviewer (sign-in is required to reach the main screen).
+- Google Play: erfangc@gmail.com has no Play Console developer account. Create
+  one, create the app, upload the first AAB by hand, then store the service
+  account key with `eas credentials -p android` and set `RELEASE_PLATFORM=all`.
+- Android push: `google-services.json` from the Firebase console in the repo
   root (or `GOOGLE_SERVICES_JSON` pointing at an EAS file secret), and the FCM V1
   key uploaded with `eas credentials`.
 
 ```bash
-eas build -p ios -e production && eas submit -p ios -e production
-eas build -p android -e production && eas submit -p android -e production
+eas build -p ios -e production --auto-submit
+eas build -p android -e production --auto-submit
 ```
