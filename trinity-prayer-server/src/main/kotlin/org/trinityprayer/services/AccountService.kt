@@ -5,20 +5,16 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.trinityprayer.common.Environment.SUPABASE_SERVICE_ROLE_KEY
-import org.trinityprayer.common.Environment.SUPABASE_URL
 import org.trinityprayer.common.UserProvider
-import java.net.URI
-import java.net.http.HttpClient
-import java.net.http.HttpRequest
-import java.net.http.HttpResponse
 import java.util.*
 
 /**
  * Permanent account deletion (App Store Review Guideline 5.1.1(v)).
  *
- * Removes everything the user created in this database, then deletes the Supabase
- * auth user through the Admin API, which cascades to identities, sessions and tokens.
+ * Removes everything the user created in this database and then the Supabase auth
+ * user itself, all in one transaction. Deleting from auth.users directly is supported
+ * by Supabase (its foreign keys cascade to identities, sessions and refresh tokens);
+ * the GoTrue Admin API was tried first but times out (504) on this project.
  */
 @Service
 class AccountService(
@@ -27,7 +23,6 @@ class AccountService(
 ) {
 
     private val log = LoggerFactory.getLogger(this.javaClass)
-    private val httpClient = HttpClient.newHttpClient()
 
     @Transactional
     fun deleteMyAccount() {
@@ -49,18 +44,8 @@ class AccountService(
         namedParameterJdbcTemplate.update(
             "DELETE FROM public.user_blocks WHERE blocker_id = :user_id OR blocked_id = :user_id", params
         )
-
-        val request = HttpRequest.newBuilder()
-            .uri(URI.create("${SUPABASE_URL.trimEnd('/')}/auth/v1/admin/users/$userId"))
-            .header("apikey", SUPABASE_SERVICE_ROLE_KEY)
-            .header("Authorization", "Bearer $SUPABASE_SERVICE_ROLE_KEY")
-            .DELETE()
-            .build()
-        val response = httpClient.send(request, HttpResponse.BodyHandlers.ofString())
-        if (response.statusCode() !in 200..299 && response.statusCode() != 404) {
-            log.error("Supabase admin delete failed for userId=$userId status=${response.statusCode()} body=${response.body()}")
-            throw IllegalStateException("Failed to delete account")
-        }
-        log.info("Deleted account userId=$userId intentionsRemoved=$intentions supabaseStatus=${response.statusCode()}")
+        val users = namedParameterJdbcTemplate.update("DELETE FROM auth.users WHERE id = :user_id", params)
+        if (users != 1) throw IllegalStateException("Auth user not found")
+        log.info("Deleted account userId=$userId intentionsRemoved=$intentions")
     }
 }
