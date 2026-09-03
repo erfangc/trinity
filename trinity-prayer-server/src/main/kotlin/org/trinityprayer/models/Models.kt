@@ -45,6 +45,10 @@ data class CreatePrayerIntentionRequest(
     val intentText: String,
 )
 
+data class ReportPrayerIntentionRequest(
+    val reason: String? = null,
+)
+
 data class ExpoNotificationPayload(
     val to: String,
     val title: String,

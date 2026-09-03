@@ -4,7 +4,7 @@ import {Ionicons} from "@expo/vector-icons";
 import CtaButton from "@/components/CtaButton";
 import {useLocalSearchParams, useRouter} from "expo-router";
 import {PrayerIntentionDenormalized} from "@/generated-sdk";
-import {api} from "@/sdk";
+import {accountApi, api} from "@/sdk";
 import {useUser} from "@/hooks/useUser";
 
 const PrayerDetailScreen = () => {
@@ -27,6 +27,48 @@ const PrayerDetailScreen = () => {
             .answerPrayer(parseInt(id as string));
         Alert.alert("Success", "Thank you for praying this intention.");
         router.navigate('/landing');
+    };
+
+    const isMine = !!user && !!prayerIntention && user.id === prayerIntention.creatorId;
+    const canPray = !!prayerIntention && !prayerIntention.answererId && !isMine;
+
+    const handleReport = () => {
+        Alert.alert(
+            "Report or block",
+            "Reported intentions are hidden right away and reviewed by our team within 24 hours.",
+            [
+                {
+                    text: "Report this intention",
+                    onPress: async () => {
+                        try {
+                            await accountApi.reportPrayerIntention(parseInt(id as string), "Reported from the app");
+                            Alert.alert("Thank you", "This intention has been hidden and will be reviewed.");
+                            router.navigate('/landing');
+                        } catch (error) {
+                            console.error(error);
+                            Alert.alert("Error", "Failed to report this intention.");
+                        }
+                    },
+                },
+                {
+                    text: "Block this person",
+                    style: "destructive",
+                    onPress: async () => {
+                        const creatorId = prayerIntention?.creatorId;
+                        if (!creatorId) return;
+                        try {
+                            await accountApi.blockUser(creatorId);
+                            Alert.alert("Blocked", "You will no longer see prayer intentions from this person.");
+                            router.navigate('/landing');
+                        } catch (error) {
+                            console.error(error);
+                            Alert.alert("Error", "Failed to block this person.");
+                        }
+                    },
+                },
+                {text: "Cancel", style: "cancel"},
+            ],
+        );
     };
 
     const answererName = prayerIntention?.answerer?.firstName ?? 'a devoted parishioner';
@@ -72,14 +114,25 @@ const PrayerDetailScreen = () => {
 
                 {/* Primary CTA Button */}
                 {
-                    prayerIntention?.answerer !== undefined
+                    canPray
                         ?
                         <View style={styles.buttonContainer}>
                             <CtaButton
-                                title={`Pray for ${prayerIntention?.creator?.firstName}`}
+                                title={`Pray for ${prayerIntention?.creator?.firstName ?? 'this intention'}`}
                                 onPress={handleAnswerPrayerIntention}
                             />
                         </View>
+                        : null
+                }
+
+                {/* Report / block (user-generated content) */}
+                {
+                    prayerIntention && !isMine
+                        ?
+                        <TouchableOpacity style={styles.reportButton} onPress={handleReport}>
+                            <Ionicons name="flag-outline" size={16} color="#B3B3B3"/>
+                            <Text style={styles.reportText}>Report or block</Text>
+                        </TouchableOpacity>
                         : null
                 }
             </ScrollView>
@@ -139,6 +192,17 @@ const styles = StyleSheet.create({
         marginTop: 20,
         width: "100%",
         alignItems: "center",
+    },
+    reportButton: {
+        marginTop: 24,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        padding: 8,
+    },
+    reportText: {
+        color: "#B3B3B3",
+        fontSize: 14,
     },
     primaryButton: {
         backgroundColor: "#7E4D26", // Brown color

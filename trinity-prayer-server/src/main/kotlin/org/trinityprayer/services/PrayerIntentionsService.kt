@@ -56,6 +56,13 @@ class PrayerIntentionsService(
                     ON (c.raw_user_meta_data->>'church_id')::bigint = ch.id
                 WHERE
                     answerer_id is null AND creator_id != :creator_id
+                    AND NOT EXISTS (
+                        SELECT 1 FROM public.prayer_intention_reports r WHERE r.prayer_intention_id = pi.id
+                    )
+                    AND NOT EXISTS (
+                        SELECT 1 FROM public.user_blocks b
+                        WHERE b.blocker_id = :creator_id AND b.blocked_id = pi.creator_id
+                    )
                 """.trimIndent(),
                 MapSqlParameterSource()
                     .addValue("creator_id", sub)

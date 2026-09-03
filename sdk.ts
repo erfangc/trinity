@@ -21,3 +21,14 @@ axios.interceptors.request.use(
 export const api = new TrinityPrayerControllerApi(undefined, TRINITY_API_URL);
 
 
+
+/**
+ * Endpoints added after the generated SDK was last regenerated (run
+ * `./generate-sdk.sh` against a running server to fold them into `generated-sdk/`).
+ */
+export const accountApi = {
+    deleteMyAccount: () => axios.delete(`${TRINITY_API_URL}/api/v1/me`),
+    reportPrayerIntention: (prayerIntentionId: number, reason?: string) =>
+        axios.post(`${TRINITY_API_URL}/api/v1/prayer-intentions/${prayerIntentionId}/report`, {reason}),
+    blockUser: (userId: string) => axios.post(`${TRINITY_API_URL}/api/v1/users/${userId}/block`),
+};

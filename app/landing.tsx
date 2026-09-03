@@ -94,11 +94,8 @@ export default function LandingScreen() {
             </SafeAreaView>
             <View style={{marginBottom: 24}}>
                 <CtaButton title={"REQUEST A PRAYER"} onPress={() => router.push('/create-prayer-intention')}/>
-                <TouchableOpacity
-                    style={styles.signOutContainer}
-                    onPress={() => router.push('/create-prayer-intention')}
-                >
-                    <Text style={styles.signOutText} onPress={handleSignOut}>
+                <TouchableOpacity style={styles.signOutContainer} onPress={handleSignOut}>
+                    <Text style={styles.signOutText}>
                         Sign Out
                     </Text>
                 </TouchableOpacity>
